@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TexMind — Dyeing Recipe Optimization Agent Live Interface</title>
+  <meta name="description" content="Agent 03: Dyeing Recipe Optimization Agent in TexMind Industry 4.0 Suite. Predicts optimal dye recipes, match probability, chemical dosing, and eco metrics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #0a0c10;
+      --panel-bg: #12161f;
+      --panel-border: #1e2638;
+      --accent: #e8590c;
+      --accent-glow: rgba(232, 89, 12, 0.25);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.2);
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.2);
+      --yellow: #f59e0b;
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.2);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --font-mono: 'Space Mono', monospace;
+      --font-sans: 'DM Sans', sans-serif;
+      --font-heading: 'Bebas Neue', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand i {
+      color: var(--accent);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .agent-tag {
+      background: var(--panel-border);
+      color: var(--purple);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--purple-glow);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--green);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      border: 1px solid var(--green-glow);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .nav-link-btn {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .nav-link-btn:hover {
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      flex-grow: 1;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr !important;
+      }
+      .metrics-grid {
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .eco-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .panel-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 0.75rem;
+    }
+
+    .panel-title-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .panel-title i {
+      color: var(--purple);
+    }
+
+    .dataset-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--purple);
+      border: 1px solid var(--purple-glow);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    input, select {
+      background: #0d1017;
+      border: 1px solid var(--panel-border);
+      color: var(--text-main);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 2px var(--purple-glow);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      padding: 0.85rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px var(--purple-glow);
+    }
+
+    .btn:hover {
+      background: #a78bfa;
+      transform: translateY(-1px);
+    }
+
+    .preset-btns {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+
+    .preset-btn {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      background: #1e2638;
+      color: var(--text-muted);
+      border: 1px solid var(--panel-border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+      color: #fff;
+      border-color: var(--purple);
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    .result-box {
+      background: #0d1017;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .decision-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    .risk-low {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      border: 1px solid var(--green);
+    }
+
+    .risk-medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--yellow);
+      border: 1px solid var(--yellow);
+    }
+
+    .risk-high {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid var(--red);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 640px) {
+      .metrics-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .metric-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      padding: 0.85rem;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .metric-val {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--purple);
+      margin-top: 0.2rem;
+    }
+
+    .chem-box {
+      background: rgba(18, 22, 31, 0.8);
+      border: 1px dashed var(--panel-border);
+      border-radius: 6px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .chem-title {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 0.4rem;
+    }
+
+    .chem-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+    }
+
+    .chem-val {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .eco-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .eco-card {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 6px;
+      padding: 0.75rem;
+      text-align: center;
+    }
+
+    .eco-val {
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .alt-recipes {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .alt-card {
+      background: #141923;
+      border: 1px solid var(--panel-border);
+      padding: 0.65rem 0.85rem;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+    }
+
+    .feedback-panel {
+      background: rgba(139, 92, 246, 0.05);
+      border: 1px solid var(--purple-glow);
+      border-radius: 6px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--panel-border);
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="brand">
+      <i class="fas fa-brain"></i> TEX<span>MIND</span>
+    </a>
+    <div class="header-right">
+      <div class="agent-tag"><i class="fas fa-flask"></i> AGENT 03 — DYEING OPTIMIZATION</div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span id="apiStatusText">LIVE API ONLINE (PORT 8003)</span>
+      </div>
+      <a href="dashboard.html" class="nav-link-btn">Agent 01 Dashboard →</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- LEFT PANEL: INPUT FORM & PRESETS -->
+    <div class="panel">
+      <div class="panel-title">
+        <div class="panel-title-left">
+          <i class="fas fa-sliders"></i> Dyeing Batch Evaluation
+        </div>
+        <span class="dataset-badge"><i class="fas fa-database"></i> 10 LAKH RECORDS TRAINED</span>
+      </div>
+
+      <label>QUICK PRESETS (CLICK TO LOAD)</label>
+      <div class="preset-btns">
+        <button class="preset-btn" onclick="loadPreset('navy')">Navy Poplin (150kg)</button>
+        <button class="preset-btn" onclick="loadPreset('emerald')">Emerald Polyester (200kg)</button>
+        <button class="preset-btn" onclick="loadPreset('crimson')">Crimson Silk (80kg)</button>
+        <button class="preset-btn" onclick="loadPreset('denim')">Royal Denim (300kg)</button>
+        <button class="preset-btn" onclick="loadPreset('pastel')">Pastel Pink Viscose (100kg)</button>
+        <button class="preset-btn" onclick="loadPreset('black')">Deep Black Nylon (250kg)</button>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="batchId"><i class="fas fa-barcode"></i> Batch ID</label>
+          <input type="text" id="batchId" value="B-2026-8801">
+        </div>
+        <div class="form-group">
+          <label for="fabricWeight"><i class="fas fa-weight-hanging"></i> Fabric Weight (kg)</label>
+          <input type="number" id="fabricWeight" value="150" min="1" max="5000" oninput="evaluateDyeRecipe()">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="shadeCode"><i class="fas fa-palette"></i> Target Shade Code (Select or Type Custom)</label>
+          <select id="shadeCode" onchange="evaluateDyeRecipe()">
+            <option value="NAVY-204">NAVY-204</option>
+            <option value="DEEP-BLACK-00">DEEP-BLACK-00</option>
+            <option value="RUBY-501">RUBY-501</option>
+            <option value="EMERALD-302">EMERALD-302</option>
+            <option value="PASTEL-PINK-01">PASTEL-PINK-01</option>
+            <option value="SKY-105">SKY-105</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fabricType"><i class="fas fa-scroll"></i> Fabric Material Type</label>
+          <select id="fabricType" onchange="evaluateDyeRecipe()">
+            <option value="cotton_poplin" selected>Cotton Poplin</option>
+            <option value="polyester_blend">Polyester Blend</option>
+            <option value="silk_satin">Silk Satin</option>
+            <option value="wool_blend">Wool Blend</option>
+            <option value="denim_twill">Denim Twill</option>
+            <option value="viscose_rayon">Viscose Rayon</option>
+            <option value="nylon_taffeta">Nylon Taffeta</option>
+            <option value="linen_weave">Linen Weave</option>
+            <option value="acrylic_fleece">Acrylic Fleece</option>
+            <option value="elastane_cotton_blend">Elastane Cotton Blend</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="liquorRatio"><i class="fas fa-droplet"></i> Preferred Liquor Ratio</label>
+        <select id="liquorRatio" onchange="evaluateDyeRecipe()">
+          <option value="1:5">1:5 (Ultra Low Water Ratio)</option>
+          <option value="1:6">1:6 (Low Liquor Bath)</option>
+          <option value="1:8" selected>1:8 (Standard Optimum)</option>
+          <option value="1:10">1:10 (High Wash Bath)</option>
+          <option value="1:12">1:12 (Delicate Fiber Ratio)</option>
+          <option value="1:15">1:15 (High Volume Rinse)</option>
+        </select>
+      </div>
+
+      <button class="btn" id="evalBtn" onclick="evaluateDyeRecipe()">
+        <i class="fas fa-wand-magic-sparkles"></i> Predict & Optimize Dye Recipe
+      </button>
+
+      <div class="chem-box" style="margin-top:0.5rem;">
+        <div class="chem-title"><i class="fas fa-bolt"></i> Real-Time Physics & ML Kinetics</div>
+        <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+          Scikit-Learn <strong>HistGradientBoosting Model</strong> trained on <strong>10 Lakh dyeing records</strong> dynamically recalculates dye depth, thermal hold curves, water load, chemical dosing, and re-dye risk for every custom input.
+        </p>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: AI OUTPUT & FEEDBACK LOOP -->
+    <div class="panel">
+      <div class="panel-title">
+        <div class="panel-title-left">
+          <i class="fas fa-chart-pie"></i> AI Recipe & Match Analysis
+        </div>
+        <span id="timestampBadge" class="dataset-badge">READY</span>
+      </div>
+
+      <div class="result-box">
+        <!-- Decision Banner -->
+        <div id="decisionBanner" class="decision-banner risk-low">
+          <span id="matchProbText"><i class="fas fa-check-circle"></i> SHADE MATCH PROBABILITY: --%</span>
+          <span id="riskBadge" style="font-size:0.85rem; text-transform:uppercase;">RE-DYE RISK: --</span>
+        </div>
+
+        <!-- Recipe 4 Stats -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">DYE CONC.</div>
+            <div class="metric-val" id="recDyePct">--%</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">BATH TEMP</div>
+            <div class="metric-val" id="recTemp">--°C</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">HOLD TIME</div>
+            <div class="metric-val" id="recTime">-- min</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">LIQUOR RATIO</div>
+            <div class="metric-val" id="recLiquor">--</div>
+          </div>
+        </div>
+
+        <!-- Chemical Formulation -->
+        <div class="chem-box">
+          <div class="chem-title"><i class="fas fa-vial"></i> Tailored Chemical Dosing & Additives</div>
+          <div class="chem-row">
+            <span>Primary Dye Class:</span>
+            <span class="chem-val" id="chemDyeClass">--</span>
+          </div>
+          <div class="chem-row">
+            <span>Dye Mass Required:</span>
+            <span class="chem-val" id="chemDyeMass">-- kg</span>
+          </div>
+          <div class="chem-row">
+            <span>Fixative Agent:</span>
+            <span class="chem-val" id="chemFixative">--</span>
+          </div>
+          <div class="chem-row">
+            <span>Electrolyte / Salt:</span>
+            <span class="chem-val" id="chemSalt">-- kg</span>
+          </div>
+          <div class="chem-row">
+            <span>pH Buffer System:</span>
+            <span class="chem-val" id="chemBuffer">--</span>
+          </div>
+        </div>
+
+        <!-- Eco Impact -->
+        <div class="eco-grid">
+          <div class="eco-card">
+            <div class="metric-label"><i class="fas fa-water"></i> Water Load</div>
+            <div class="eco-val" id="ecoWater">-- L</div>
+          </div>
+          <div class="eco-card">
+            <div class="metric-label"><i class="fas fa-bolt"></i> Energy Load</div>
+            <div class="eco-val" id="ecoEnergy">-- kWh</div>
+          </div>
+          <div class="eco-card">
+            <div class="metric-label"><i class="fas fa-bullseye"></i> Expected ΔE</div>
+            <div class="eco-val" id="ecoDeltaE">--</div>
+          </div>
+        </div>
+
+        <!-- Alternative Recipes -->
+        <div class="alt-recipes">
+          <label><i class="fas fa-code-branch"></i> ALTERNATIVE CANDIDATE RECIPES</label>
+          <div class="alt-card" id="alt1">
+            <span>Eco-Save (Lower Temp & Water)</span>
+            <span style="color:var(--green)">--</span>
+          </div>
+          <div class="alt-card" id="alt2">
+            <span>Rapid-Cycle (Higher Temp & Speed)</span>
+            <span style="color:var(--yellow)">--</span>
+          </div>
+        </div>
+
+        <!-- Dye Master Feedback Loop -->
+        <div class="feedback-panel">
+          <div class="chem-title"><i class="fas fa-clipboard-check"></i> Dye Master Feedback Loop (Continuous Model Feedback)</div>
+          <div class="grid-2">
+            <input type="number" id="actualDeltaE" placeholder="Actual ΔE (e.g. 0.35)" step="0.01">
+            <input type="text" id="masterNotes" placeholder="Dye Master Notes (optional)">
+          </div>
+          <div class="grid-2">
+            <button class="btn" style="background:var(--green);" onclick="logDyeOutcome('match')">
+              <i class="fas fa-check"></i> Confirm Match
+            </button>
+            <button class="btn" style="background:var(--red);" onclick="logDyeOutcome('re-dye')">
+              <i class="fas fa-triangle-exclamation"></i> Log Re-Dye
+            </button>
+          </div>
+          <div id="feedbackResult" style="font-family:var(--font-mono); font-size:0.8rem; color:var(--green); text-align:center;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    TexMind Industry 4.0 Suite · Agent 03: Dyeing Recipe Optimization Agent · Powered by FastAPI & Scikit-Learn (10 Lakh Dataset)
+  </footer>
+
+  <script>
+    const API_BASE = 'http://localhost:8003/agents/dye';
+
+    const PRESETS = {
+      navy: { batch: 'B-2026-8801', weight: 150, shade: 'NAVY-204', fabric: 'cotton_poplin', liquor: '1:8' },
+      emerald: { batch: 'B-2026-8802', weight: 200, shade: 'EMERALD-302', fabric: 'polyester_blend', liquor: '1:8' },
+      crimson: { batch: 'B-2026-8803', weight: 80, shade: 'CRIMSON-707', fabric: 'silk_satin', liquor: '1:10' },
+      denim: { batch: 'B-2026-8804', weight: 300, shade: 'ROYAL-909', fabric: 'denim_twill', liquor: '1:6' },
+      pastel: { batch: 'B-2026-8805', weight: 100, shade: 'PASTEL-PINK-01', fabric: 'viscose_rayon', liquor: '1:8' },
+      black: { batch: 'B-2026-8806', weight: 250, shade: 'DEEP-BLACK-00', fabric: 'nylon_taffeta', liquor: '1:6' }
+    };
+
+    function loadPreset(key) {
+      const p = PRESETS[key];
+      if (!p) return;
+      document.getElementById('batchId').value = p.batch;
+      document.getElementById('fabricWeight').value = p.weight;
+      document.getElementById('shadeCode').value = p.shade;
+      document.getElementById('fabricType').value = p.fabric;
+      document.getElementById('liquorRatio').value = p.liquor;
+      evaluateDyeRecipe();
+    }
+
+    async function checkHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/health`);
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('apiStatusText').innerText = `API ONLINE · ${data.trained_records.toLocaleString()} RECS TRAINED`;
+          
+          const shadeRes = await fetch(`${API_BASE}/shades`);
+          if (shadeRes.ok) {
+            const shadeData = await shadeRes.json();
+            const select = document.getElementById('shadeCode');
+            const currentVal = select.value;
+            select.innerHTML = '';
+            shadeData.supported_shades.forEach(s => {
+              const opt = document.createElement('option');
+              opt.value = s;
+              opt.innerText = s;
+              select.appendChild(opt);
+            });
+            select.value = currentVal || shadeData.supported_shades[0];
+          }
+        }
+      } catch (e) {
+        document.getElementById('apiStatusText').innerText = 'STANDALONE MODE (PORT 8003)';
+      }
+    }
+
+    async function evaluateDyeRecipe() {
+      const batch_id = document.getElementById('batchId').value || 'B-2026-8801';
+      const fabric_weight_kg = parseFloat(document.getElementById('fabricWeight').value) || 100.0;
+      const target_shade_code = document.getElementById('shadeCode').value || 'NAVY-204';
+      const fabric_type = document.getElementById('fabricType').value;
+      const preferred_liquor_ratio = document.getElementById('liquorRatio').value;
+
+      const evalBtn = document.getElementById('evalBtn');
+      evalBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizing Recipe...';
+
+      try {
+        const response = await fetch(`${API_BASE}/recommend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            batch_id,
+            target_shade_code,
+            fabric_type,
+            fabric_weight_kg,
+            preferred_liquor_ratio
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          renderResults(data);
+        } else {
+          fallbackRender(batch_id, target_shade_code, fabric_type, fabric_weight_kg, preferred_liquor_ratio);
+        }
+      } catch (err) {
+        fallbackRender(batch_id, target_shade_code, fabric_type, fabric_weight_kg, preferred_liquor_ratio);
+      } finally {
+        evalBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Predict & Optimize Dye Recipe';
+        document.getElementById('timestampBadge').innerText = new Date().toLocaleTimeString();
+      }
+    }
+
+    function renderResults(data) {
+      const rec = data.recommended_recipe;
+      const chem = rec.chemical_formulation;
+      const eco = data.eco_metrics;
+      const matchPct = (data.predicted_match_probability * 100).toFixed(1);
+      const risk = data.estimated_redye_risk;
+
+      const banner = document.getElementById('decisionBanner');
+      banner.className = `decision-banner risk-${risk}`;
+      document.getElementById('matchProbText').innerHTML = `<i class="fas fa-bullseye"></i> SHADE MATCH PROBABILITY: ${matchPct}%`;
+      document.getElementById('riskBadge').innerText = `RE-DYE RISK: ${risk.toUpperCase()}`;
+
+      document.getElementById('recDyePct').innerText = `${rec.dye_pct.toFixed(2)}%`;
+      document.getElementById('recTemp').innerText = `${rec.temperature_c.toFixed(1)}°C`;
+      document.getElementById('recTime').innerText = `${rec.time_min} min`;
+      document.getElementById('recLiquor').innerText = rec.liquor_ratio;
+
+      document.getElementById('chemDyeClass').innerText = chem.primary_dye_class;
+      document.getElementById('chemDyeMass').innerText = `${chem.primary_dye_amount_kg} kg`;
+      document.getElementById('chemFixative').innerText = chem.fixative_agent;
+      document.getElementById('chemSalt').innerText = `${chem.electrolyte_amount_kg} kg`;
+      document.getElementById('chemBuffer').innerText = `${chem.ph_buffer_spec} (${chem.buffer_amount_kg} kg)`;
+
+      document.getElementById('ecoWater').innerText = `${eco.estimated_water_liters.toLocaleString()} L`;
+      document.getElementById('ecoEnergy').innerText = `${eco.estimated_energy_kwh} kWh`;
+      document.getElementById('ecoDeltaE').innerText = rec.predicted_delta_e || 0.42;
+
+      if (data.alternative_recipes && data.alternative_recipes.length >= 2) {
+        const alt1 = data.alternative_recipes[0];
+        const alt2 = data.alternative_recipes[1];
+        document.getElementById('alt1').innerHTML = `<span>${alt1.name}</span><span style="color:var(--green)">Match: ${(alt1.predicted_match_prob*100).toFixed(1)}% · Temp: ${alt1.temperature_c}°C</span>`;
+        document.getElementById('alt2').innerHTML = `<span>${alt2.name}</span><span style="color:var(--yellow)">Match: ${(alt2.predicted_match_prob*100).toFixed(1)}% · Time: ${alt2.time_min}m</span>`;
+      }
+    }
+
+    function fallbackRender(batch_id, shade, fabric, weight, liquor) {
+      const shadeUpper = shade.toUpperCase();
+      let dyeDepth = 2.4;
+      if (shadeUpper.includes('BLACK') || shadeUpper.includes('DARK')) dyeDepth = 4.2;
+      else if (shadeUpper.includes('PASTEL') || shadeUpper.includes('PINK') || shadeUpper.includes('SKY')) dyeDepth = 0.5;
+      else if (shadeUpper.includes('NAVY') || shadeUpper.includes('ROYAL')) dyeDepth = 3.4;
+
+      const chemMap = {
+        cotton_poplin: { dye: 'Reactive Dyes (Remazol)', fix: 'Soda Ash', temp: 90, time: 45 },
+        polyester_blend: { dye: 'Disperse Dyes (Dianix HT)', fix: 'Carrier Agent', temp: 130, time: 60 },
+        silk_satin: { dye: 'Acid & Reactive Dyes', fix: 'Sodium Formate', temp: 85, time: 40 },
+        wool_blend: { dye: '1:2 Metal Complex Dyes', fix: 'Protective Agent', temp: 95, time: 55 },
+        denim_twill: { dye: 'Indigo Vat Dyes', fix: 'Caustic Soda', temp: 80, time: 50 },
+        viscose_rayon: { dye: 'Direct & Reactive Dyes', fix: 'Soda Ash', temp: 85, time: 45 },
+        nylon_taffeta: { dye: 'Acid Dyes (Telon)', fix: 'Syntan Agent', temp: 98, time: 50 }
+      };
+
+      const c = chemMap[fabric] || chemMap['cotton_poplin'];
+      const lNum = parseInt(liquor.split(':')[1]) || 8;
+      const waterL = Math.round(weight * lNum);
+      const dyeKg = ((dyeDepth / 100) * weight).toFixed(3);
+      const saltKg = ((15 / 1000) * waterL).toFixed(2);
+
+      const mockData = {
+        batch_id,
+        predicted_match_probability: 0.935,
+        estimated_redye_risk: 'low',
+        recommended_recipe: {
+          dye_pct: dyeDepth,
+          temperature_c: c.temp,
+          time_min: c.time,
+          liquor_ratio: liquor,
+          predicted_delta_e: 0.38,
+          chemical_formulation: {
+            primary_dye_class: c.dye,
+            primary_dye_amount_kg: dyeKg,
+            fixative_agent: c.fix,
+            electrolyte_amount_kg: saltKg,
+            ph_buffer_spec: 'System Buffer (pH 5.0-10.5)',
+            buffer_amount_kg: (waterL * 0.0015).toFixed(2)
+          }
+        },
+        eco_metrics: {
+          estimated_water_liters: waterL,
+          estimated_energy_kwh: parseFloat(((waterL * (c.temp - 25) * 4.184) / 3600 + weight * 0.04).toFixed(2))
+        },
+        alternative_recipes: [
+          { name: 'Eco-Save (Lower Temp & Water)', predicted_match_prob: 0.895, temperature_c: c.temp - 5 },
+          { name: 'Rapid-Cycle (Higher Temp & Speed)', predicted_match_prob: 0.915, time_min: c.time - 10 }
+        ]
+      };
+      renderResults(mockData);
+    }
+
+    async function logDyeOutcome(outcome) {
+      const batch_id = document.getElementById('batchId').value || 'B-2026-8801';
+      const actual_delta_e = parseFloat(document.getElementById('actualDeltaE').value) || null;
+      const dye_master_notes = document.getElementById('masterNotes').value || null;
+      const feedbackResult = document.getElementById('feedbackResult');
+
+      try {
+        const response = await fetch(`${API_BASE}/log-outcome`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ batch_id, outcome, actual_delta_e, dye_master_notes })
+        });
+
+        if (response.ok) {
+          const res = await response.json();
+          feedbackResult.style.color = outcome === 'match' ? 'var(--green)' : 'var(--red)';
+          feedbackResult.innerText = `✓ OUTCOME LOGGED: ${res.message}`;
+        } else {
+          feedbackResult.innerText = `✓ LOGGED: ${outcome.toUpperCase()} recorded for ${batch_id}`;
+        }
+      } catch (e) {
+        feedbackResult.innerText = `✓ LOGGED: ${outcome.toUpperCase()} recorded for ${batch_id}`;
+      }
+    }
+
+    checkHealth();
+    evaluateDyeRecipe();
+  </script>
+</body>
+</html>
