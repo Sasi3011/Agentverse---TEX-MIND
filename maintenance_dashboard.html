@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 6: Predictive Maintenance | TEXMIND</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #050505;
+      --surface: #121212;
+      --surface-border: #262626;
+      --accent-orange: #f97316;
+      --accent-purple: #a855f7;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-yellow: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-mono: 'Space Mono', monospace;
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Bebas Neue', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navigation */
+    nav {
+      border-bottom: 1px solid var(--surface-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(5,5,5,0.9);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      text-decoration: none;
+      color: var(--text);
+      letter-spacing: 2px;
+    }
+    .nav-logo span { color: var(--accent-orange); }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--accent-orange);
+    }
+    .nav-badge {
+      background: rgba(249, 115, 22, 0.15);
+      color: var(--accent-orange);
+      border: 1px solid var(--accent-orange);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-orange);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-orange);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+    }
+
+    /* Layout */
+    .dashboard-container {
+      padding: 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .header-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--surface-border);
+      padding-bottom: 1rem;
+    }
+    .title-area h1 {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      letter-spacing: 1px;
+    }
+    .title-area p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--accent-orange);
+    }
+    .kpi-card.critical::before { background: var(--accent-red); }
+    .kpi-card.purple::before { background: var(--accent-purple); }
+    .kpi-card.green::before { background: var(--accent-green); }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0.25rem 0;
+    }
+    .kpi-subtext {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .card-panel {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Machine Matrix */
+    .machine-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .machine-card {
+      background: #18181b;
+      border: 1px solid var(--surface-border);
+      border-radius: 6px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .machine-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-orange);
+    }
+    .machine-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .machine-name {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .status-tag {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+    .status-tag.critical { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .status-tag.warning { background: rgba(245, 158, 11, 0.2); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+    .status-tag.healthy { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+
+    .health-bar-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .health-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .progress-track {
+      height: 8px;
+      background: #27272a;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-green);
+      transition: width 0.4s ease;
+    }
+    .progress-fill.critical { background: var(--accent-red); }
+    .progress-fill.warning { background: var(--accent-yellow); }
+
+    .machine-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      background: #09090b;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    .stat-box { display: flex; flex-direction: column; }
+    .stat-val { font-family: var(--font-mono); font-weight: 700; }
+
+    /* Simulator Form */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+    .form-group label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .form-group input, .form-group select {
+      background: #09090b;
+      border: 1px solid var(--surface-border);
+      color: var(--text);
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+    .btn-submit {
+      background: var(--accent-orange);
+      color: #000;
+      font-weight: 800;
+      font-family: var(--font-sans);
+      text-transform: uppercase;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+    .btn-submit:hover { opacity: 0.9; }
+
+    /* Queue Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--surface-border);
+    }
+    th {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+    .btn-action {
+      background: rgba(249, 115, 22, 0.1);
+      color: var(--accent-orange);
+      border: 1px solid var(--accent-orange);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .btn-action:hover {
+      background: var(--accent-orange);
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">TEX<span>MIND</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html">Agent 01 Intake</a></li>
+      <li><a href="dyeing_dashboard.html">Agent 03 Dyeing</a></li>
+      <li><a href="effluent_dashboard.html">Agent 04 ETP</a></li>
+      <li><a href="energy_dashboard.html">Agent 05 Energy</a></li>
+      <li><a href="maintenance_dashboard.html" class="active">Agent 06 Maintenance</a></li>
+    </ul>
+    <div class="nav-badge">
+      <div class="pulse-dot"></div>
+      AGENT 06 ONLINE (PORT 8003)
+    </div>
+  </nav>
+
+  <div class="dashboard-container">
+    <div class="header-panel">
+      <div class="title-area">
+        <h1>Predictive Maintenance Agent</h1>
+        <p>Vibration & thermal telemetry model trained on 1,000,000 sensor run-to-failure records</p>
+      </div>
+      <div>
+        <button onclick="fetchLatestData()" class="btn-action" style="padding: 0.5rem 1rem;"><i class="fa-solid fa-arrows-rotate"></i> Refresh Telemetry</button>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-label">Monitored Fleet</div>
+        <div class="kpi-value" id="kpi-fleet-count">5</div>
+        <div class="kpi-subtext">Industrial Looms & Spinning Frames</div>
+      </div>
+      <div class="kpi-card critical">
+        <div class="kpi-label">Critical Failures Predicted</div>
+        <div class="kpi-value" id="kpi-critical-count" style="color:var(--accent-red)">1</div>
+        <div class="kpi-subtext">RUL ≤ 3 Days or Health < 40%</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">Average Fleet RUL</div>
+        <div class="kpi-value" id="kpi-avg-rul">17.7d</div>
+        <div class="kpi-subtext">Estimated Remaining Useful Life</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">ML Training Dataset</div>
+        <div class="kpi-value">1,000,000</div>
+        <div class="kpi-subtext">HistGradientBoosting (R² = 0.989)</div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-grid">
+      
+      <!-- Left Column: Fleet Matrix & Live Chart -->
+      <div style="display:flex; flex-direction:column; gap:1.5rem;">
+        
+        <!-- Fleet Machine Health Matrix -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title"><i class="fa-solid fa-microchip" style="color:var(--accent-orange);"></i> Machine Health Matrix</div>
+            <span class="kpi-subtext">Live Vibration RMS & Temperature</span>
+          </div>
+          <div class="machine-grid" id="machine-matrix">
+            <!-- Machine cards injected via JS -->
+          </div>
+        </div>
+
+        <!-- Telemetry Graph -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title"><i class="fa-solid fa-chart-line" style="color:var(--accent-purple);"></i> Real-Time Telemetry Trend (LOOM-02)</div>
+          </div>
+          <div style="height: 250px;">
+            <canvas id="telemetryChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive Simulator & Ticket Queue -->
+      <div style="display:flex; flex-direction:column; gap:1.5rem;">
+
+        <!-- Sensor Feed Ingestion Simulator -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title"><i class="fa-solid fa-sliders" style="color:var(--accent-orange);"></i> Sensor Simulator</div>
+          </div>
+          <form id="ingestForm" onsubmit="handleIngest(event)">
+            <div class="form-group">
+              <label>Target Machine</label>
+              <select id="simMachine">
+                <option value="LOOM-01">LOOM-01 (Weaving Loom)</option>
+                <option value="LOOM-02" selected>LOOM-02 (Weaving Loom)</option>
+                <option value="SPIN-01">SPIN-01 (Spinning Frame)</option>
+                <option value="SPIN-02">SPIN-02 (Spinning Frame)</option>
+                <option value="CARD-01">CARD-01 (Carding Machine)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Vibration RMS (g)</label>
+              <input type="number" id="simVib" step="0.01" value="0.95" min="0.10" max="3.00" required>
+            </div>
+            <div class="form-group">
+              <label>Temperature (°C)</label>
+              <input type="number" id="simTemp" step="0.5" value="78.5" min="30" max="120" required>
+            </div>
+            <div class="form-group">
+              <label>Total Operating Hours</label>
+              <input type="number" id="simHours" step="10" value="6500" required>
+            </div>
+            <button type="submit" class="btn-submit"><i class="fa-solid fa-bolt"></i> Ingest Telemetry</button>
+          </form>
+        </div>
+
+        <!-- Prioritized Maintenance Queue -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title"><i class="fa-solid fa-list-check" style="color:var(--accent-red);"></i> Maintenance Queue</div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Machine</th>
+                  <th>Priority</th>
+                  <th>RUL</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="queue-table-body">
+                <!-- Queue rows injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8003/agents/maintenance";
+    let telemetryChart = null;
+
+    // Default state fallback if backend isn't reachable
+    let machinesData = {
+      "LOOM-01": { vibration_rms: 0.28, temperature_c: 52.0, operating_hours: 3200, health_score: 0.88, rul_days: 26.4, priority: "healthy", action: "Normal operation" },
+      "LOOM-02": { vibration_rms: 0.85, temperature_c: 74.5, operating_hours: 6400, health_score: 0.38, rul_days: 2.8, priority: "critical", action: "Immediate bearing inspection & replacement" },
+      "SPIN-01": { vibration_rms: 0.32, temperature_c: 55.0, operating_hours: 2100, health_score: 0.82, rul_days: 24.6, priority: "healthy", action: "Normal operation" },
+      "SPIN-02": { vibration_rms: 0.58, temperature_c: 66.2, operating_hours: 4900, health_score: 0.59, rul_days: 6.5, priority: "warning", action: "Schedule alignment and lubrication check" },
+      "CARD-01": { vibration_rms: 0.22, temperature_c: 49.0, operating_hours: 1500, health_score: 0.94, rul_days: 28.2, priority: "healthy", action: "Normal operation" }
+    };
+
+    function initChart() {
+      const ctx = document.getElementById('telemetryChart').getContext('2d');
+      telemetryChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['10:00', '10:05', '10:10', '10:15', '10:20', '10:25', '10:30'],
+          datasets: [
+            {
+              label: 'Vibration RMS (g)',
+              data: [0.45, 0.52, 0.58, 0.64, 0.72, 0.81, 0.85],
+              borderColor: '#f97316',
+              backgroundColor: 'rgba(249, 115, 22, 0.1)',
+              yAxisID: 'y',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'Temperature (°C)',
+              data: [58, 61, 63, 66, 70, 72, 74.5],
+              borderColor: '#a855f7',
+              backgroundColor: 'rgba(168, 85, 247, 0.1)',
+              yAxisID: 'y1',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { color: '#262626' }, ticks: { color: '#94a3b8' } },
+            y: { position: 'left', grid: { color: '#262626' }, ticks: { color: '#f97316' }, title: { display: true, text: 'Vibration (g)', color: '#f97316' } },
+            y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#a855f7' }, title: { display: true, text: 'Temp (°C)', color: '#a855f7' } }
+          },
+          plugins: { legend: { labels: { color: '#f8fafc' } } }
+        }
+      });
+    }
+
+    async function fetchLatestData() {
+      try {
+        const res = await fetch(`${API_BASE}/machines`);
+        if (res.ok) {
+          const json = await res.json();
+          machinesData = json.machines;
+        }
+      } catch (err) {
+        console.warn("Backend API not reachable, running with mock state.");
+      }
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const container = document.getElementById('machine-matrix');
+      container.innerHTML = '';
+      
+      let criticalCount = 0;
+      let totalRul = 0;
+      let count = 0;
+
+      for (const [mId, m] of Object.entries(machinesData)) {
+        count++;
+        totalRul += m.rul_days || m.estimated_remaining_useful_life_days || 10;
+        if (m.priority === 'critical') criticalCount++;
+
+        const healthPct = Math.round((m.health_score || 0.5) * 100);
+        const card = document.createElement('div');
+        card.className = 'machine-card';
+        card.innerHTML = `
+          <div class="machine-header">
+            <span class="machine-name">${mId}</span>
+            <span class="status-tag ${m.priority}">${m.priority}</span>
+          </div>
+          <div class="health-bar-container">
+            <div class="health-bar-labels">
+              <span>Health Score</span>
+              <span style="font-weight:700;">${healthPct}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill ${m.priority}" style="width: ${healthPct}%"></div>
+            </div>
+          </div>
+          <div class="machine-stats">
+            <div class="stat-box">
+              <span style="color:#94a3b8; font-size:0.7rem;">Vibration</span>
+              <span class="stat-val">${m.vibration_rms.toFixed(2)} g</span>
+            </div>
+            <div class="stat-box">
+              <span style="color:#94a3b8; font-size:0.7rem;">Temp</span>
+              <span class="stat-val">${m.temperature_c.toFixed(1)} °C</span>
+            </div>
+            <div class="stat-box">
+              <span style="color:#94a3b8; font-size:0.7rem;">RUL</span>
+              <span class="stat-val" style="color:var(--accent-orange);">${(m.rul_days || m.estimated_remaining_useful_life_days || 10).toFixed(1)} days</span>
+            </div>
+            <div class="stat-box">
+              <span style="color:#94a3b8; font-size:0.7rem;">Hours</span>
+              <span class="stat-val">${m.operating_hours || 3000} h</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      }
+
+      document.getElementById('kpi-fleet-count').innerText = count;
+      document.getElementById('kpi-critical-count').innerText = criticalCount;
+      document.getElementById('kpi-avg-rul').innerText = `${(totalRul / count).toFixed(1)}d`;
+
+      renderQueue();
+    }
+
+    async function renderQueue() {
+      const tbody = document.getElementById('queue-table-body');
+      tbody.innerHTML = '';
+
+      let queueItems = [];
+      try {
+        const res = await fetch(`${API_BASE}/queue`);
+        if (res.ok) {
+          const json = await res.json();
+          queueItems = json.maintenance_queue;
+        }
+      } catch (e) {
+        queueItems = Object.entries(machinesData)
+          .filter(([_, m]) => m.priority !== 'healthy')
+          .map(([id, m]) => ({ machine_id: id, priority: m.priority, estimated_remaining_useful_life_days: m.rul_days || 5, recommended_action: m.action }));
+      }
+
+      if (queueItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No pending maintenance alerts. Fleet operating normally.</td></tr>`;
+        return;
+      }
+
+      queueItems.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong style="font-family:var(--font-mono);">${item.machine_id}</strong></td>
+          <td><span class="status-tag ${item.priority}">${item.priority}</span></td>
+          <td><span style="font-family:var(--font-mono); color:var(--accent-orange);">${(item.estimated_remaining_useful_life_days || 5).toFixed(1)}d</span></td>
+          <td>
+            <button class="btn-action" onclick="alert('Maintenance Work Order dispatched for ${item.machine_id}')">Schedule Ticket</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function handleIngest(e) {
+      e.preventDefault();
+      const machine_id = document.getElementById('simMachine').value;
+      const vibration_rms = parseFloat(document.getElementById('simVib').value);
+      const temperature_c = parseFloat(document.getElementById('simTemp').value);
+      const operating_hours = parseFloat(document.getElementById('simHours').value);
+
+      const payload = { machine_id, vibration_rms, temperature_c, operating_hours };
+
+      try {
+        const res = await fetch(`${API_BASE}/ingest`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const json = await res.json();
+          machinesData[machine_id] = {
+            vibration_rms, temperature_c, operating_hours,
+            health_score: json.health_score,
+            rul_days: json.estimated_remaining_useful_life_days,
+            priority: json.priority,
+            action: json.recommended_action
+          };
+        } else {
+          updateMock(payload);
+        }
+      } catch (err) {
+        updateMock(payload);
+      }
+
+      // Chart update simulation
+      if (telemetryChart) {
+        telemetryChart.data.labels.push(new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}));
+        telemetryChart.data.datasets[0].data.push(vibration_rms);
+        telemetryChart.data.datasets[1].data.push(temperature_c);
+        if (telemetryChart.data.labels.length > 10) {
+          telemetryChart.data.labels.shift();
+          telemetryChart.data.datasets[0].data.shift();
+          telemetryChart.data.datasets[1].data.shift();
+        }
+        telemetryChart.update();
+      }
+
+      renderDashboard();
+    }
+
+    function updateMock(p) {
+      const health = Math.max(0.05, 1.0 - (p.vibration_rms / 2.0 * 0.6 + p.temperature_c / 100.0 * 0.4));
+      const rul = health * 28.0;
+      const priority = health < 0.4 ? 'critical' : (health < 0.7 ? 'warning' : 'healthy');
+      machinesData[p.machine_id] = {
+        vibration_rms: p.vibration_rms,
+        temperature_c: p.temperature_c,
+        operating_hours: p.operating_hours,
+        health_score: Math.round(health * 1000) / 1000,
+        rul_days: Math.round(rul * 10) / 10,
+        priority: priority,
+        action: priority === 'critical' ? 'Immediate bearing replacement' : 'Routine monitoring'
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      fetchLatestData();
+      setInterval(fetchLatestData, 5000);
+    });
+  </script>
+</body>
+</html>
