@@ -440,9 +440,10 @@
   <nav>
     <a href="#hero" class="nav-logo">TEX<span>MIND</span></a>
     <ul class="nav-links">
-      <li><a href="#overview">Overview</a></li>
+      <li><a href="#problems">Problems</a></li>
       <li><a href="#agents">10 Agents</a></li>
       <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#impact">Impact & ROI</a></li>
       <li><a href="dashboard.html" class="nav-register-btn">Live Dashboard →</a></li>
     </ul>
   </nav>
@@ -507,9 +508,56 @@
     </div>
   </section>
 
+  <!-- PROBLEMS SECTION -->
+  <section id="problems" class="section" style="border-top: 3px solid #222;">
+    <div class="section-label">[ 01 ] Real-World Industry Challenges</div>
+    <h2 class="section-heading">Why Textile Mills Need a Cognitive Brain</h2>
+    <p class="section-desc">
+      Textile manufacturing suffers from cascading multi-stage failures that isolated software tools cannot solve.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem;">
+      <div class="agent-card">
+        <div style="font-family:'Bebas Neue'; font-size: 1.6rem; color:var(--accent); margin-bottom:0.4rem;">
+          <i class="fas fa-scroll"></i> Raw Batch Flaws
+        </div>
+        <p style="font-family:'Space Mono'; font-size:0.75rem; color:rgba(255,255,255,0.6); line-height:1.5;">
+          High moisture or weak tensile yarn entering production causing severe downstream loom stoppage.
+        </p>
+      </div>
+
+      <div class="agent-card">
+        <div style="font-family:'Bebas Neue'; font-size: 1.6rem; color:var(--accent); margin-bottom:0.4rem;">
+          <i class="fas fa-eye-slash"></i> Late Defect Catch
+        </div>
+        <p style="font-family:'Space Mono'; font-size:0.75rem; color:rgba(255,255,255,0.6); line-height:1.5;">
+          Manual visual inspection misses ~35% of slubs & holes until hundreds of meters are already woven.
+        </p>
+      </div>
+
+      <div class="agent-card">
+        <div style="font-family:'Bebas Neue'; font-size: 1.6rem; color:var(--accent); margin-bottom:0.4rem;">
+          <i class="fas fa-palette"></i> Shade Mismatches
+        </div>
+        <p style="font-family:'Space Mono'; font-size:0.75rem; color:rgba(255,255,255,0.6); line-height:1.5;">
+          Highest cost rejection category — re-dyeing cycles wasting massive water, dye chemicals & power.
+        </p>
+      </div>
+
+      <div class="agent-card">
+        <div style="font-family:'Bebas Neue'; font-size: 1.6rem; color:var(--accent); margin-bottom:0.4rem;">
+          <i class="fas fa-wrench"></i> Unplanned Breakdown
+        </div>
+        <p style="font-family:'Space Mono'; font-size:0.75rem; color:rgba(255,255,255,0.6); line-height:1.5;">
+          Bearing wear & motor overheating causing sudden loom halts instead of condition-based maintenance.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- AGENTS SHOWCASE -->
-  <section id="agents" class="section">
-    <div class="section-label">[ 01 ] Specialist Microservices</div>
+  <section id="agents" class="section" style="border-top: 3px solid #222;">
+    <div class="section-label">[ 02 ] Specialist Microservices</div>
     <h2 class="section-heading">10 Autonomous Agents</h2>
     <p class="section-desc">
       Exact names and capabilities matching the project's agent specification files:
@@ -680,6 +728,91 @@
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE SECTION -->
+  <section id="architecture" class="section" style="border-top: 3px solid #222;">
+    <div class="section-label">[ 03 ] System Topology</div>
+    <h2 class="section-heading">3-Tier Intelligence Architecture</h2>
+    <p class="section-desc">
+      How raw sensors flow into autonomous microservices and fuse into a unified plant management brain.
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 1rem; align-items: center;">
+      <div class="agent-card">
+        <div style="font-family:'Bebas Neue'; font-size:1.5rem; color:var(--accent); margin-bottom:0.5rem;">
+          TIER 1: FLOOR SENSORS
+        </div>
+        <p style="font-family:'Space Mono'; font-size:0.75rem; color:rgba(255,255,255,0.6); line-height:1.6;">
+          • Moisture / Tension Sensors<br>
+          • Inspection Cameras (RTSP)<br>
+          • ETP Discharge Monitors<br>
+          • Vibration Accelerometers<br>
+          • ERP Batch Logs
+        </p>
+      </div>
+
+      <div style="font-family:'Bebas Neue'; font-size:2rem; color:var(--accent); text-align:center;">➔</div>
+
+      <div class="agent-card">
+        <div style="font-family:'Bebas Neue'; font-size:1.5rem; color:var(--accent); margin-bottom:0.5rem;">
+          TIER 2: 10 SPECIALIST AGENTS
+        </div>
+        <p style="font-family:'Space Mono'; font-size:0.75rem; color:rgba(255,255,255,0.6); line-height:1.6;">
+          • Independent FastAPI Services<br>
+          • ML Model & Computer Vision<br>
+          • Anomaly Detection Engines<br>
+          • Neo4j Graph Lineage<br>
+          • Postgres Output Store
+        </p>
+      </div>
+
+      <div style="font-family:'Bebas Neue'; font-size:2rem; color:var(--accent); text-align:center;">➔</div>
+
+      <div class="agent-card" style="border: 2px solid var(--accent);">
+        <div style="font-family:'Bebas Neue'; font-size:1.5rem; color:var(--accent); margin-bottom:0.5rem;">
+          TIER 3: MASTER BRAIN
+        </div>
+        <p style="font-family:'Space Mono'; font-size:0.75rem; color:rgba(255,255,255,0.6); line-height:1.6;">
+          • Gemini LLM Orchestrator<br>
+          • LangGraph State Manager<br>
+          • Unified Mill Health Score<br>
+          • Executive Action Advisory<br>
+          • Auto ESG Report Generation
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROI & IMPACT SECTION -->
+  <section id="impact" class="section" style="border-top: 3px solid #222;">
+    <div class="section-label">[ 04 ] Quantified Impact</div>
+    <h2 class="section-heading">Mill Operating Results</h2>
+    <p class="section-desc">
+      Projected operational savings across quality, utilities, and downtime reduction.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+      <div class="agent-card" style="text-align: center;">
+        <div style="font-family:'Bebas Neue'; font-size: 3.5rem; color:var(--accent); line-height:1;">-82%</div>
+        <div style="font-family:'Space Mono'; font-size: 0.75rem; color:rgba(255,255,255,0.7); margin-top:0.5rem; text-transform:uppercase;">Downstream Fabric Defects</div>
+      </div>
+
+      <div class="agent-card" style="text-align: center;">
+        <div style="font-family:'Bebas Neue'; font-size: 3.5rem; color:#22c55e; line-height:1;">-40%</div>
+        <div style="font-family:'Space Mono'; font-size: 0.75rem; color:rgba(255,255,255,0.7); margin-top:0.5rem; text-transform:uppercase;">Dyeing Re-Batch Water Waste</div>
+      </div>
+
+      <div class="agent-card" style="text-align: center;">
+        <div style="font-family:'Bebas Neue'; font-size: 3.5rem; color:var(--accent); line-height:1;">-65%</div>
+        <div style="font-family:'Space Mono'; font-size: 0.75rem; color:rgba(255,255,255,0.7); margin-top:0.5rem; text-transform:uppercase;">Unplanned Loom Downtime</div>
+      </div>
+
+      <div class="agent-card" style="text-align: center;">
+        <div style="font-family:'Bebas Neue'; font-size: 3.5rem; color:#22c55e; line-height:1;">100%</div>
+        <div style="font-family:'Space Mono'; font-size: 0.75rem; color:rgba(255,255,255,0.7); margin-top:0.5rem; text-transform:uppercase;">Automated GOTS Audit Export</div>
+      </div>
     </div>
   </section>
 
