@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TexMind — Multi-Agent Cognitive Twin for Textile Mills</title>
+  <meta name="description" content="TexMind turns 10 specialist AI agents watching every stage of a textile mill into one unified brain that catches defects, saves water and energy, and prevents downtime.">
+  <meta name="keywords" content="TexMind, textile AI, multi-agent system, Industry 4.0, smart manufacturing, hackathon, cognitive twin">
+  <meta name="author" content="TexMind Team">
+  <meta name="theme-color" content="#e8590c">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ═══════════════ NAVIGATION ═══════════════ -->
+  <nav id="navbar">
+    <a href="#hero" class="nav-logo">
+      <span class="logo-icon"><i class="fas fa-brain"></i></span>
+      TEX<span class="accent">MIND</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#problems">Problem</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#techstack">Tech Stack</a></li>
+      <li><a href="#impact">Impact</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="dashboard.html" class="nav-register-btn">Live Dashboard →</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#problems">Problem</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#techstack">Tech Stack</a>
+    <a href="#impact">Impact</a>
+    <a href="#team">Team</a>
+  </div>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section id="hero">
+    <div class="hero-body">
+      <!-- Left: Image Panel -->
+      <div class="hero-image-panel">
+        <img src="hero.png" alt="Textile mill floor with AI holographic overlays">
+        <div class="img-grain"></div>
+        <div class="img-accent"></div>
+      </div>
+
+      <!-- Right: Text Content -->
+      <div class="hero-inner">
+        <div class="hero-tag">
+          <span class="live-dot"></span>
+          Multi-Agent AI System · Hackathon 2026
+        </div>
+
+        <h1 class="hero-title">
+          <span class="stroke">TEX</span><br>
+          <span class="red">MIND</span>
+        </h1>
+
+        <div class="hero-bottom-row">
+          <p class="hero-subtitle">
+            10 specialist AI agents watching every stage of a textile mill —
+            fused into <strong style="color:var(--accent)">one unified brain</strong>
+            that catches defects, saves water & energy, and prevents downtime
+            before they cost you a single rupee.
+          </p>
+          <div class="hero-cta-row">
+            <a href="dashboard.html" class="btn-outline">
+              <i class="fas fa-gauge-high"></i> Live Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Bar -->
+    <div class="hero-stat-bar">
+      <div class="stat-block">
+        <div class="stat-label">Specialist Agents</div>
+        <div class="stat-value accent">10</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Sensor Sources</div>
+        <div class="stat-value">9</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Unified Brain</div>
+        <div class="stat-value accent">1</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Processing</div>
+        <div class="stat-value green">● REAL-TIME</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Category</div>
+        <div class="stat-value" style="font-size:1.2rem;">INDUSTRY 4.0</div>
+      </div>
+    </div>
+
+    <!-- Ticker -->
+    <div class="hero-ticker">
+      <div class="ticker-track">
+        <span class="ticker-item">Multi-Agent AI</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Textile Manufacturing</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Industry 4.0</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Smart Manufacturing</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Sensor Fusion</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Predictive Maintenance</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Defect Detection</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Real-Time Monitoring</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Gemini AI Orchestrator</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Zero Waste Vision</span><span class="ticker-sep">◆</span>
+        <!-- Duplicate for seamless loop -->
+        <span class="ticker-item">Multi-Agent AI</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Textile Manufacturing</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Industry 4.0</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Smart Manufacturing</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Sensor Fusion</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Predictive Maintenance</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Defect Detection</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Real-Time Monitoring</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Gemini AI Orchestrator</span><span class="ticker-sep">◆</span>
+        <span class="ticker-item">Zero Waste Vision</span><span class="ticker-sep">◆</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════ PROBLEM STATEMENT ═══════════════ -->
+  <section id="problems" class="section">
+    <div class="section-label reveal">[ 01 ] The Problem</div>
+    <h2 class="section-heading reveal">Why Textile Mills<br>Need A Brain</h2>
+    <p class="section-desc reveal">
+      Textile manufacturing — from spinning to packing — suffers from cascading
+      failures that no single model can solve. Different sensors, different physics,
+      different failure signatures. This demands a <strong>true multi-agent architecture</strong>.
+    </p>
+
+    <div class="problems-grid reveal-children">
+      <div class="problem-card" data-num="01">
+        <span class="problem-icon"><i class="fas fa-scroll"></i></span>
+        <div class="problem-title">Yarn Breaks</div>
+        <p class="problem-desc">Production stoppages & wasted raw material from yarn count variation</p>
+      </div>
+      <div class="problem-card" data-num="02">
+        <span class="problem-icon"><i class="fas fa-circle-exclamation"></i></span>
+        <div class="problem-title">Fabric Defects</div>
+        <p class="problem-desc">Holes, slubs & weft bars causing batch rejections & export quality loss</p>
+      </div>
+      <div class="problem-card" data-num="03">
+        <span class="problem-icon"><i class="fas fa-palette"></i></span>
+        <div class="problem-title">Shade Mismatch</div>
+        <p class="problem-desc">Highest-cost rejection category — dyeing shade variation across batches</p>
+      </div>
+      <div class="problem-card" data-num="04">
+        <span class="problem-icon"><i class="fas fa-bolt"></i></span>
+        <div class="problem-title">Energy Waste</div>
+        <p class="problem-desc">High operating cost & carbon footprint from energy-intensive dyeing/drying</p>
+      </div>
+      <div class="problem-card" data-num="05">
+        <span class="problem-icon"><i class="fas fa-droplet"></i></span>
+        <div class="problem-title">Water Overuse</div>
+        <p class="problem-desc">Textile dyeing is among the most water-intensive industrial processes</p>
+      </div>
+      <div class="problem-card" data-num="06">
+        <span class="problem-icon"><i class="fas fa-wrench"></i></span>
+        <div class="problem-title">Unplanned Downtime</div>
+        <p class="problem-desc">Lost production hours from unexpected machine breakdowns</p>
+      </div>
+      <div class="problem-card" data-num="07">
+        <span class="problem-icon"><i class="fas fa-clipboard-list"></i></span>
+        <div class="problem-title">Poor Traceability</div>
+        <p class="problem-desc">Compliance failures for GOTS, OEKO-TEX & export audit requirements</p>
+      </div>
+      <div class="problem-card" data-num="08">
+        <span class="problem-icon"><i class="fas fa-triangle-exclamation"></i></span>
+        <div class="problem-title">Worker Safety</div>
+        <p class="problem-desc">Injuries & compliance risk near moving machinery on the floor</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════ MARQUEE DIVIDER ═══════════════ -->
+  <div class="marquee-divider">
+    <div class="marquee-track">
+      <span class="marquee-item">10 AGENTS</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">1 BRAIN</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">ZERO DEFECTS</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">REAL-TIME FUSION</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">SMART MANUFACTURING</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">COGNITIVE TWIN</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">10 AGENTS</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">1 BRAIN</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">ZERO DEFECTS</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">REAL-TIME FUSION</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">SMART MANUFACTURING</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">COGNITIVE TWIN</span><span class="marquee-dot">◆</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════ 10 AGENTS SHOWCASE ═══════════════ -->
+  <section id="agents" class="section">
+    <div class="section-label reveal">[ 02 ] The Specialist Agents</div>
+    <h2 class="section-heading reveal">10 Agents,<br>Separate Files</h2>
+    <p class="section-desc reveal">
+      The detailed write-ups now live in the <strong>agents/</strong> folder as standalone files.
+      This homepage keeps the overview, while each agent gets its own page for easier editing and demos.
+    </p>
+
+    <div class="agents-grid reveal-children">
+
+      <!-- Agent 1 -->
+      <div class="agent-card" data-agent="1">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">01</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-scroll"></i></span>
+              <span class="agent-name">Yarn Quality Agent</span>
+            </div>
+            <p class="agent-purpose">Predict yarn breaks and count variation before they cause loom stoppages</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">Spindle tension sensor readings, spindle speed, humidity/temperature, historical break-rate logs</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">Time-series anomaly detection (rolling z-score / LSTM) on tension signal; flags trend deviation from healthy baseline</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{risk_score: 0-1, predicted_break_time: minutes, affected_spindle_id}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag">Python</span>
+              <span class="agent-tech-tag">scikit-learn</span>
+              <span class="agent-tech-tag accent-tag">Isolation Forest</span>
+              <span class="agent-tech-tag">LSTM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 2 -->
+      <div class="agent-card" data-agent="2">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">02</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-industry"></i></span>
+              <span class="agent-name">Loom / Weaving Agent</span>
+            </div>
+            <p class="agent-purpose">Detect real-time weaving faults — missing pick, weft bar, loose ends</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">Loom RPM sensor, pick sensor, stoppage logs, optional camera feed</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">Rule-based thresholding + pattern matching against known fault signatures; escalates to Defect Vision Agent for visual confirmation</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{fault_type, loom_id, severity}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag">Python</span>
+              <span class="agent-tech-tag accent-tag">Rules Engine</span>
+              <span class="agent-tech-tag">OpenCV</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 3 -->
+      <div class="agent-card" data-agent="3">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">03</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-palette"></i></span>
+              <span class="agent-name">Dyeing Consistency Agent</span>
+            </div>
+            <p class="agent-purpose">Predict shade/color variation before a dye batch is ruined — highest-cost rejection</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">Dye recipe (chemical ratios), water hardness/pH, temperature-time curve, batch liquor ratio</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">Regression model trained on recipe parameters vs. historical ΔE (color deviation); flags temperature/time curve drift</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{shade_risk_score, deviation_parameter, recommended_correction}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag">Python</span>
+              <span class="agent-tech-tag accent-tag">XGBoost</span>
+              <span class="agent-tech-tag">Regression</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 4 -->
+      <div class="agent-card" data-agent="4">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">04</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-bolt"></i></span>
+              <span class="agent-name">Energy Optimization Agent</span>
+            </div>
+            <p class="agent-purpose">Minimize kWh/kg of fabric by scheduling high-load machines intelligently</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">Real-time power meter data, machine load schedule, time-of-day tariff data</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">Optimization/scheduling algorithm (LP or greedy heuristic) shifts high-load jobs to lower-tariff windows without breaking deadlines</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{current_kwh_per_kg, optimized_schedule, projected_savings}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag">Python</span>
+              <span class="agent-tech-tag accent-tag">OR-Tools</span>
+              <span class="agent-tech-tag">PuLP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 5 -->
+      <div class="agent-card" data-agent="5">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">05</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-droplet"></i></span>
+              <span class="agent-name">Water & Effluent Agent</span>
+            </div>
+            <p class="agent-purpose">Monitor water consumption and ETP load — a major sustainability lever</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">Flow meter readings, ETP inlet/outlet quality sensors, batch water usage logs</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">Anomaly detection against per-batch water-usage baseline (liters/kg fabric)</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{water_usage_anomaly, liters_per_kg, sustainability_flag}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag">Python</span>
+              <span class="agent-tech-tag accent-tag">Statistical Baseline</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 6 -->
+      <div class="agent-card" data-agent="6">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">06</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-gears"></i></span>
+              <span class="agent-name">Predictive Maintenance</span>
+            </div>
+            <p class="agent-purpose">Predict machine breakdowns — looms, compressors, boilers — before they halt production</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">Vibration sensors, motor temperature, run-hours since last service</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">Vibration signature classification (FFT features + classifier) to detect bearing wear, imbalance, misalignment</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{machine_id, failure_probability, estimated_time_to_failure}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag">Python</span>
+              <span class="agent-tech-tag accent-tag">FFT</span>
+              <span class="agent-tech-tag">scikit-learn</span>
+              <span class="agent-tech-tag">CWRU Dataset</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 7 -->
+      <div class="agent-card" data-agent="7">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">07</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-eye"></i></span>
+              <span class="agent-name">Defect Vision Agent</span>
+            </div>
+            <p class="agent-purpose">Classify fabric defects visually on the inspection line in real time</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">Camera feed / fabric images from inspection line</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">CNN classifier detecting: hole, stain, slub, missing yarn, oil mark</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{defect_type, confidence, location_on_roll}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag">PyTorch</span>
+              <span class="agent-tech-tag accent-tag">YOLOv8</span>
+              <span class="agent-tech-tag">MobileNet</span>
+              <span class="agent-tech-tag">AITEX Dataset</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 8 -->
+      <div class="agent-card" data-agent="8">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">08</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-hard-hat"></i></span>
+              <span class="agent-name">Worker Safety Agent</span>
+            </div>
+            <p class="agent-purpose">Detect unsafe zones near moving machinery and PPE non-compliance</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">CCTV feed near looms/spinning frames</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">Object detection (person + machine proximity) + PPE classifier (helmet/no-helmet)</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{zone_id, violation_type, urgency}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag accent-tag">YOLOv8</span>
+              <span class="agent-tech-tag">PPE Detection</span>
+              <span class="agent-tech-tag">Roboflow</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 9 -->
+      <div class="agent-card" data-agent="9">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col">
+            <div class="agent-num">09</div>
+            <div class="agent-num-label">Agent</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon"><i class="fas fa-diagram-project"></i></span>
+              <span class="agent-name">Traceability Agent</span>
+            </div>
+            <p class="agent-purpose">Track batch lineage — yarn lot → fabric roll — for quality recalls & certification</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">ERP/inventory records, batch IDs, QR/barcode scan logs</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">Graph-based lineage tracking (yarn lot → loom → fabric roll → dye batch → finished roll)</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{batch_id, full_lineage_graph, compliance_status}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag">Python</span>
+              <span class="agent-tech-tag accent-tag">Neo4j</span>
+              <span class="agent-tech-tag">Graph DB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent 10 — Orchestrator (special full-width card) -->
+      <div class="agent-card orchestrator" data-agent="10">
+        <span class="agent-expand"><i class="fas fa-chevron-down"></i></span>
+        <div class="agent-card-header">
+          <div class="agent-num-col" style="background: var(--accent);">
+            <div class="agent-num" style="color: var(--white);">10</div>
+            <div class="agent-num-label" style="color: rgba(255,255,255,0.7);">Brain</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-icon-row">
+              <span class="agent-icon" style="font-size:1.8rem;"><i class="fas fa-brain"></i></span>
+              <span class="agent-name">Orchestrator Agent — "The Brain"</span>
+            </div>
+            <p class="agent-purpose">Fuse all 9 specialist outputs into one Mill Health Score and one plain-language recommendation, resolving conflicts between competing priorities</p>
+          </div>
+        </div>
+        <div class="agent-details">
+          <div class="agent-details-inner">
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Inputs</span>
+              <span class="agent-detail-value">Structured JSON outputs from all 9 specialist agents</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Logic</span>
+              <span class="agent-detail-value">1) Normalize risk scores to 0–1 scale 2) Weight by business impact 3) Detect conflicts (e.g., Energy vs Maintenance on same machine) 4) LLM reasoning for arbitration + natural-language output with cost estimate</span>
+            </div>
+            <div class="agent-detail-row">
+              <span class="agent-detail-label">Output</span>
+              <span class="agent-detail-value">{mill_health_score, top_risks[], recommended_action, estimated_savings, plain_language_summary}</span>
+            </div>
+            <div class="agent-tech-tags">
+              <span class="agent-tech-tag accent-tag">Gemini API</span>
+              <span class="agent-tech-tag">LangGraph</span>
+              <span class="agent-tech-tag">Function Calling</span>
+              <span class="agent-tech-tag accent-tag">Supervisor Pattern</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ═══════════════ ARCHITECTURE SECTION ═══════════════ -->
+  <section id="architecture">
+    <div class="arch-container">
+      <div class="section-label reveal">[ 03 ] System Architecture</div>
+      <h2 class="section-heading reveal" style="color:var(--white);">Three-Layer<br>Intelligence</h2>
+      <p class="section-desc reveal" style="color:rgba(255,255,255,0.45);">
+        The floor manager never talks to 10 agents — they talk to <strong style="color:var(--accent);">one Orchestrator</strong>,
+        which internally queries specialists the way a human plant manager would consult department heads.
+      </p>
+
+      <div class="arch-flow reveal">
+        <!-- Layer 1: Floor -->
+        <div class="arch-layer floor-layer">
+          <div class="arch-layer-badge">Layer 1</div>
+          <div class="arch-layer-icon"><i class="fas fa-industry"></i></div>
+          <div class="arch-layer-title">Mill Floor</div>
+          <ul class="arch-layer-items">
+            <li>Spinning Sensors</li>
+            <li>Loom/Weaving Sensors</li>
+            <li>Dyeing Machine Sensors</li>
+            <li>Energy Meters</li>
+            <li>Water/ETP Sensors</li>
+            <li>Vibration/Thermal</li>
+            <li>Inspection Cameras</li>
+            <li>CCTV / Safety</li>
+            <li>ERP / Inventory</li>
+          </ul>
+        </div>
+
+        <!-- Arrow -->
+        <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+
+        <!-- Layer 2: Agents -->
+        <div class="arch-layer agents-layer">
+          <div class="arch-layer-badge">Layer 2</div>
+          <div class="arch-layer-icon"><i class="fas fa-robot"></i></div>
+          <div class="arch-layer-title">10 Specialist Agents</div>
+          <ul class="arch-layer-items">
+            <li>Yarn Quality Agent</li>
+            <li>Loom/Weaving Agent</li>
+            <li>Dyeing Consistency</li>
+            <li>Energy Optimization</li>
+            <li>Water & Effluent</li>
+            <li>Predictive Maintenance</li>
+            <li>Defect Vision</li>
+            <li>Worker Safety</li>
+            <li>Traceability</li>
+            <li style="color:var(--accent); font-weight:700;"><i class="fas fa-star"></i> Orchestrator (Brain)</li>
+          </ul>
+        </div>
+
+        <!-- Arrow -->
+        <div class="arch-arrow"><i class="fas fa-arrow-right"></i></div>
+
+        <!-- Layer 3: Output -->
+        <div class="arch-layer output-layer">
+          <div class="arch-layer-badge">Layer 3</div>
+          <div class="arch-layer-icon"><i class="fas fa-chart-line"></i></div>
+          <div class="arch-layer-title">Unified Output</div>
+          <ul class="arch-layer-items">
+            <li>Mill Health Score (0–100)</li>
+            <li>Plain-Language Recommendation</li>
+            <li>Manager Dashboard</li>
+            <li>Chat Interface</li>
+            <li>Alert Notifications</li>
+            <li>Cost Impact Estimates</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════ MARQUEE 2 ═══════════════ -->
+  <div class="marquee-divider" style="background: var(--accent);">
+    <div class="marquee-track">
+      <span class="marquee-item">PYTHON</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">GEMINI AI</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">FASTAPI</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">YOLOV8</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">PYTORCH</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">LANGGRAPH</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">NEO4J</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">DOCKER</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">PYTHON</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">GEMINI AI</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">FASTAPI</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">YOLOV8</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">PYTORCH</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">LANGGRAPH</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">NEO4J</span><span class="marquee-dot">◆</span>
+      <span class="marquee-item">DOCKER</span><span class="marquee-dot">◆</span>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════ TECH STACK ═══════════════ -->
+  <section id="techstack" class="section">
+    <div class="section-label reveal">[ 04 ] Technology Stack</div>
+    <h2 class="section-heading reveal">Built With<br>Battle-Tested Tools</h2>
+    <p class="section-desc reveal">
+      Every layer of TexMind uses industry-standard technology — no experimental tooling,
+      no vendor lock-in, purely open-source foundations with Gemini AI as the reasoning engine.
+    </p>
+
+    <div class="tech-grid reveal-children">
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fab fa-python"></i></span>
+        <div class="tech-name">Python</div>
+        <p class="tech-desc">Core language for all 10 specialist agents</p>
+        <span class="tech-layer">Agents Layer</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-brain"></i></span>
+        <div class="tech-name">Gemini API</div>
+        <p class="tech-desc">Google LLM reasoning for orchestrator arbitration & NL output</p>
+        <span class="tech-layer">Orchestrator</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-bolt"></i></span>
+        <div class="tech-name">FastAPI</div>
+        <p class="tech-desc">REST API layer exposing each agent as an endpoint</p>
+        <span class="tech-layer">Backend</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-eye"></i></span>
+        <div class="tech-name">YOLOv8</div>
+        <p class="tech-desc">Real-time object detection for defects & PPE compliance</p>
+        <span class="tech-layer">Computer Vision</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-fire-flame-curved"></i></span>
+        <div class="tech-name">PyTorch</div>
+        <p class="tech-desc">Deep learning framework for CNN fabric defect classifier</p>
+        <span class="tech-layer">ML Framework</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-chart-bar"></i></span>
+        <div class="tech-name">scikit-learn</div>
+        <p class="tech-desc">Classical ML for anomaly detection & maintenance prediction</p>
+        <span class="tech-layer">ML Framework</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-shuffle"></i></span>
+        <div class="tech-name">LangGraph</div>
+        <p class="tech-desc">Agent orchestration framework for fan-out/fan-in routing</p>
+        <span class="tech-layer">Orchestration</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-database"></i></span>
+        <div class="tech-name">PostgreSQL</div>
+        <p class="tech-desc">Structured logging & agent output persistence</p>
+        <span class="tech-layer">Database</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-circle-nodes"></i></span>
+        <div class="tech-name">Neo4j</div>
+        <p class="tech-desc">Graph database for batch lineage traceability</p>
+        <span class="tech-layer">Database</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fas fa-cubes"></i></span>
+        <div class="tech-name">OR-Tools</div>
+        <p class="tech-desc">Google's optimization library for energy scheduling LP</p>
+        <span class="tech-layer">Optimization</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fab fa-docker"></i></span>
+        <div class="tech-name">Docker</div>
+        <p class="tech-desc">Containerized deployment — all agents as microservices</p>
+        <span class="tech-layer">Deployment</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-icon"><i class="fab fa-react"></i></span>
+        <div class="tech-name">React</div>
+        <p class="tech-desc">Manager-facing dashboard & chat interface</p>
+        <span class="tech-layer">Frontend</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════ IMPACT METRICS ═══════════════ -->
+  <section id="impact">
+    <div class="impact-inner">
+      <div class="section-label reveal">[ 05 ] Business Impact</div>
+      <h2 class="impact-heading reveal">Measurable<br>Results</h2>
+      <p class="impact-sub reveal">Translated into the metrics that matter — rupees, liters, kilowatt-hours</p>
+
+      <div class="impact-grid reveal-children">
+        <div class="impact-card">
+          <div class="impact-value" data-target="40" data-suffix="%">0%</div>
+          <div class="impact-metric">Defect Reduction</div>
+          <p class="impact-desc">Fewer rejected fabric rolls through real-time vision inspection</p>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" data-target="18000" data-prefix="₹" data-suffix="">₹0</div>
+          <div class="impact-metric">Saved Per Batch</div>
+          <p class="impact-desc">Cost avoidance from early dye-shade correction</p>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" data-target="30" data-suffix="%">0%</div>
+          <div class="impact-metric">Water Savings</div>
+          <p class="impact-desc">Liters/kg fabric reduced through intelligent monitoring</p>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" data-target="25" data-suffix="%">0%</div>
+          <div class="impact-metric">Energy Savings</div>
+          <p class="impact-desc">kWh/kg fabric reduced via smarter load scheduling</p>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" data-target="60" data-suffix="%">0%</div>
+          <div class="impact-metric">Downtime Reduced</div>
+          <p class="impact-desc">Hours of unplanned downtime avoided via predictive maintenance</p>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" data-target="95" data-suffix="%">0%</div>
+          <div class="impact-metric">Safety Compliance</div>
+          <p class="impact-desc">Near-miss zone violations flagged proactively</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════ TEAM SECTION ═══════════════ -->
+  <section id="team" class="section">
+    <div class="section-label reveal">[ 06 ] The Team</div>
+    <h2 class="section-heading reveal">Meet The<br>Builders</h2>
+    <p class="section-desc reveal">
+      A small team with deep expertise across ML, computer vision, industrial IoT, and full-stack development.
+    </p>
+
+    <div class="team-grid reveal-children">
+      <div class="team-card">
+        <div class="team-avatar">A</div>
+        <div class="team-name">Team Member 1</div>
+        <div class="team-role">ML & Orchestration Lead</div>
+        <p class="team-desc">Orchestrator design, Gemini integration, agent communication protocol</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">B</div>
+        <div class="team-name">Team Member 2</div>
+        <div class="team-role">Computer Vision Engineer</div>
+        <p class="team-desc">Defect Vision Agent, Worker Safety Agent, YOLOv8 fine-tuning</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">C</div>
+        <div class="team-name">Team Member 3</div>
+        <div class="team-role">Data & Backend Engineer</div>
+        <p class="team-desc">FastAPI services, PostgreSQL/Neo4j, synthetic data generation</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">D</div>
+        <div class="team-name">Team Member 4</div>
+        <div class="team-role">Frontend & UX Designer</div>
+        <p class="team-desc">Dashboard UI, chat interface, data visualization, demo choreography</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">TEX<span>MIND</span></div>
+        <p class="footer-tagline">
+          10 specialist AI agents watching every stage of a textile mill —
+          fused into one unified brain.
+        </p>
+      </div>
+      <div class="footer-links">
+        <a href="#hero">Home</a>
+        <a href="#problems">Problem</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#techstack">Tech Stack</a>
+        <a href="#impact">Impact</a>
+        <a href="#team">Team</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 TexMind. Industry 4.0 & Smart Manufacturing.</span>
+      <span class="footer-made">Built for Hackathon 2026 ◆</span>
+    </div>
+  </footer>
+
+
+  <script src="script.js"></script>
+</body>
+</html>

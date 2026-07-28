@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: texverse
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  intake-agent:
+    build: 
+      context: ./agents/intake
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+      - MOISTURE_MAX=8.5
+      - STRENGTH_MIN=18.0
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
