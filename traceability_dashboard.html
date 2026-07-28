@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 09: Supply Chain Traceability | TEXMIND</title>
+  <meta name="description" content="TEXMIND Agent 09 — Tamil Nadu Textile Ecosystem (Coimbatore, Tiruppur, Pollachi, Erode, Udumalpet) Supply Chain Traceability & AI Anomaly Detection Agent.">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:ital,wght@0,400;0,600;0,900;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────────────────── */
+    :root {
+      --bg:            #0a0a0a;
+      --surface:       #111111;
+      --surface2:      #181818;
+      --border:        #2a2a2a;
+      --border-bright: #3a3a3a;
+      --accent:        #00f2fe;
+      --accent-dim:    rgba(0, 242, 254, 0.12);
+      --accent-glow:   rgba(0, 242, 254, 0.35);
+      --green:         #22c55e;
+      --green-dim:     rgba(34,197,94,0.12);
+      --red:           #ef4444;
+      --red-dim:       rgba(239,68,68,0.12);
+      --yellow:        #eab308;
+      --yellow-dim:    rgba(234,179,8,0.12);
+      --text:          #f0f0f0;
+      --text-muted:    #888;
+      --text-dim:      #555;
+      --font-mono:     'Space Mono', monospace;
+      --font-sans:     'Inter', sans-serif;
+      --font-display:  'Bebas Neue', sans-serif;
+      --radius:        4px;
+      --transition:    0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── Navigation ─────────────────────────────────────────────────────────── */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 3px;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--border);
+    }
+    .nav-breadcrumb strong { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .api-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid var(--border-bright);
+      background: var(--surface2);
+    }
+    .api-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* ── Main Layout ─────────────────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      position: relative;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title i { color: var(--accent); }
+
+    /* ── Metrics Grid ────────────────────────────────────────────────────────── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .metric-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 1.2rem;
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Badges ──────────────────────────────────────────────────────────────── */
+    .decision-badge {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      padding: 6px 16px;
+      border-radius: 4px;
+      letter-spacing: 2px;
+      display: inline-block;
+    }
+    .badge-passed { background: var(--green-dim); color: var(--green); border: 2px solid var(--green); }
+    .badge-flagged { background: var(--yellow-dim); color: var(--yellow); border: 2px solid var(--yellow); }
+    .badge-quarantined { background: var(--red-dim); color: var(--red); border: 2px solid var(--red); }
+
+    /* ── XAI Breakdown List ──────────────────────────────────────────────────── */
+    .xai-card {
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .xai-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+    .xai-bar-bg {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .xai-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ── Form Inputs ─────────────────────────────────────────────────────────── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
+    label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-size: 0.88rem;
+      outline: none;
+      transition: var(--transition);
+    }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0a;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      padding: 0.85rem 1.5rem;
+      border: none;
+      border-radius: var(--radius);
+      transition: var(--transition);
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .btn-primary:hover { background: #38bdf8; box-shadow: 0 0 15px var(--accent-glow); }
+
+    .warning-alert {
+      background: var(--red-dim);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 0.65rem 0.9rem;
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="nav-left">
+      <div class="nav-logo">TEX<span>MIND</span></div>
+      <div class="nav-breadcrumb">
+        AGENT <span>09</span> // <strong>TAMIL NADU SUPPLY CHAIN TRACEABILITY ENGINE</strong>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">HUB</a>
+      <a href="intake_dashboard.html">01 INTAKE</a>
+      <a href="dyeing_dashboard.html">03 DYEING</a>
+      <a href="demand_dashboard.html">08 DEMAND</a>
+      <a href="traceability_dashboard.html" class="active">09 TRACEABILITY</a>
+      <div class="api-badge">
+        <div class="api-dot"></div>
+        <span>PORT 8009 ACTIVE</span>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Top Summary Banner -->
+    <div class="card full-width">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-boxes-packing"></i> BATCH SUSTAINABILITY & CUSTODY AUDIT</div>
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+          BATCH ID: <strong id="head-batch" style="color: var(--accent);">B-TN-2026-001</strong>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Final Decision</span>
+          <div style="margin-top: 4px;">
+            <span id="ui-decision-badge" class="decision-badge badge-passed">PASSED</span>
+          </div>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Completeness Score</span>
+          <span class="metric-value" id="ui-completeness">100%</span>
+          <span class="metric-sub" id="ui-completeness-sub">5 of 5 Stages Documented</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">AI Anomaly Score</span>
+          <span class="metric-value" id="ui-ai-score" style="color: var(--green);">2.0%</span>
+          <span class="metric-sub">Random Forest Inference</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Overall Cert Status</span>
+          <span class="metric-value" id="ui-cert-status" style="color: var(--green);">PASSED</span>
+          <span class="metric-sub">Facility Registry Matched</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Left Column: Input Form -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-pen-to-square"></i> AUDIT INPUT FORM</div>
+      </div>
+      <form id="audit-form">
+        <div class="form-group">
+          <label>Batch Reference ID</label>
+          <input type="text" id="inp-batch-id" value="B-TN-2026-001" required>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Distance (km)</label>
+            <input type="number" id="inp-distance" value="100">
+          </div>
+          <div class="form-group">
+            <label>Transit Hours</label>
+            <input type="number" step="0.1" id="inp-hours" value="5.0">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Raw Cotton Input (kg)</label>
+            <input type="number" id="inp-raw-kg" value="1000">
+          </div>
+          <div class="form-group">
+            <label>Finished Fabric Output (kg)</label>
+            <input type="number" id="inp-fabric-kg" value="850">
+          </div>
+        </div>
+
+        <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); margin: 1rem 0 0.5rem 0; font-weight: 700;">
+          STAGE CUSTODY & CERTIFICATES:
+        </div>
+
+        <div class="form-group">
+          <label>1. Farm Entity & Certificate</label>
+          <div class="form-grid">
+            <select id="inp-farm-entity">
+              <option value="Kongu Organic Cotton Farmers Co-op">Kongu Organic Cotton Farmers Co-op (Pollachi)</option>
+              <option value="Pollachi Sustainable Farms">Pollachi Sustainable Farms (Pollachi)</option>
+              <option value="Amaravathi Organic Cotton Collective">Amaravathi Organic Cotton Collective (Udumalpet)</option>
+              <option value="Cauvery Delta Planters">Cauvery Delta Planters (Erode)</option>
+            </select>
+            <select id="inp-farm-cert">
+              <option value="GOTS-TN-101" selected>GOTS-TN-101 (Valid Organic)</option>
+              <option value="GOTS-TN-102">GOTS-TN-102 (Valid Pollachi)</option>
+              <option value="GOTS-REVOKED-99">GOTS-REVOKED-99 (Revoked Cert Alert)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>2. Ginning Mill & Certificate</label>
+          <div class="form-grid">
+            <select id="inp-gin-entity">
+              <option value="Coimbatore Modern Ginning Works">Coimbatore Modern Ginning Works (Coimbatore)</option>
+              <option value="Tiruppur Cotton Ginning Mills">Tiruppur Cotton Ginning Mills (Tiruppur)</option>
+            </select>
+            <select id="inp-gin-cert">
+              <option value="GOTS-TN-201" selected>GOTS-TN-201 (Valid Ginning)</option>
+              <option value="GOTS-TN-202">GOTS-TN-202 (Valid Tiruppur Gin)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>3. Spinning Mill & Certificate</label>
+          <div class="form-grid">
+            <select id="inp-spin-entity">
+              <option value="Lakshmi Mills Co-op Ltd">Lakshmi Mills Co-op Ltd (Coimbatore)</option>
+              <option value="KPR Mill Spinning Division">KPR Mill Spinning Division (Tiruppur)</option>
+            </select>
+            <select id="inp-spin-cert">
+              <option value="OEKO-TN-301" selected>OEKO-TN-301 (Valid Spinning)</option>
+              <option value="OEKO-TN-302">OEKO-TN-302 (Valid KPR Spinning)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>4. Weaving Mill & Certificate</label>
+          <div class="form-grid">
+            <select id="inp-weave-entity">
+              <option value="Tiruppur Knitwear & Weaving Park">Tiruppur Knitwear & Weaving Park (Tiruppur)</option>
+            </select>
+            <select id="inp-weave-cert">
+              <option value="OEKO-TN-401" selected>OEKO-TN-401 (Valid Weaving)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>5. Dyeing Mill & Certificate</label>
+          <div class="form-grid">
+            <select id="inp-dye-entity">
+              <option value="ZLD Dyeing Park">ZLD Dyeing Park (Tiruppur)</option>
+              <option value="Old Kovai Dye Works">Old Kovai Dye Works (Coimbatore)</option>
+            </select>
+            <select id="inp-dye-cert">
+              <option value="GOTS-TN-501" selected>GOTS-TN-501 (Valid ZLD Dyeing)</option>
+              <option value="GOTS-EXPIRED-01">GOTS-EXPIRED-01 (Expired Cert Alert)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary"><i class="fa-solid fa-calculator"></i> COMPUTE BATCH AUDIT & EXPLAINABLE AI</button>
+      </form>
+    </div>
+
+    <!-- Right Column: Results & XAI Breakdown -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-chart-pie"></i> EXPLAINABLE AI & AUDIT VERIFICATION</div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="metric-card">
+          <span class="metric-label">Transit Speed</span>
+          <span class="metric-value" id="ui-speed-val">20.0 km/h</span>
+          <span class="metric-sub" id="ui-speed-sub" style="color: var(--green);">Feasible Normal</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Mass Yield Ratio</span>
+          <span class="metric-value" id="ui-mass-val">0.85</span>
+          <span class="metric-sub" id="ui-mass-sub" style="color: var(--green);">Valid Production Yield</span>
+        </div>
+      </div>
+
+      <!-- XAI Reason Breakdown -->
+      <label>Explainable AI Anomaly Score Breakdown</label>
+      <div class="xai-card">
+        <div>
+          <div class="xai-row">
+            <span>Certificate Mismatch / Expiry</span>
+            <strong id="xai-cert-val">0.0%</strong>
+          </div>
+          <div class="xai-bar-bg"><div class="xai-bar-fill" id="xai-cert-bar"></div></div>
+        </div>
+
+        <div>
+          <div class="xai-row">
+            <span>Mass Imbalance Risk</span>
+            <strong id="xai-mass-val">0.0%</strong>
+          </div>
+          <div class="xai-bar-bg"><div class="xai-bar-fill" id="xai-mass-bar"></div></div>
+        </div>
+
+        <div>
+          <div class="xai-row">
+            <span>Custody Stage Missing / Out of Order</span>
+            <strong id="xai-custody-val">0.0%</strong>
+          </div>
+          <div class="xai-bar-bg"><div class="xai-bar-fill" id="xai-custody-bar"></div></div>
+        </div>
+
+        <div>
+          <div class="xai-row">
+            <span>Transit Speed Anomaly</span>
+            <strong id="xai-transit-val">0.0%</strong>
+          </div>
+          <div class="xai-bar-bg"><div class="xai-bar-fill" id="xai-transit-bar"></div></div>
+        </div>
+
+        <div>
+          <div class="xai-row">
+            <span>Historical Supplier Risk & Remainder</span>
+            <strong id="xai-supp-val">0.0%</strong>
+          </div>
+          <div class="xai-bar-bg"><div class="xai-bar-fill" id="xai-supp-bar"></div></div>
+        </div>
+
+        <div style="border-top: 1px dashed var(--border); padding-top: 0.5rem;" class="xai-row">
+          <strong style="color: var(--text);">Total AI Anomaly Score:</strong>
+          <strong id="xai-total-val" style="color: var(--accent); font-size: 1.1rem;">2.0%</strong>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.2rem;">
+        <label>Audit Warnings & Inconsistency Flags</label>
+        <div id="ui-warning-list" style="margin-top: 6px;">
+          <div style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">No audit warnings detected. All business rules and certificate registries passed.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:8009/agents/traceability';
+
+    async function fetchBatchStatus(batchId) {
+      try {
+        const res = await fetch(`${API_BASE}/status/${batchId}`);
+        if (!res.ok) throw new Error('Batch not found');
+        const data = await res.json();
+        renderDashboard(data);
+      } catch (err) {
+        console.log('Error fetching status:', err);
+      }
+    }
+
+    function renderDashboard(data) {
+      document.getElementById('head-batch').innerText = data.batch_id;
+
+      // Decision Badge (PASSED | FLAGGED | QUARANTINED)
+      const badge = document.getElementById('ui-decision-badge');
+      badge.innerText = data.batch_status;
+      badge.className = 'decision-badge ' + (
+        data.batch_status === 'PASSED' ? 'badge-passed' :
+        (data.batch_status === 'FLAGGED' ? 'badge-flagged' : 'badge-quarantined')
+      );
+
+      // Completeness Score (Internal Consistency Guard)
+      document.getElementById('ui-completeness').innerText = `${data.completeness_score}%`;
+      document.getElementById('ui-completeness-sub').innerText = `${data.present_stages_count} of 5 Stages Documented`;
+
+      // AI Anomaly Score
+      const aiVal = document.getElementById('ui-ai-score');
+      aiVal.innerText = `${data.ai_anomaly_score}%`;
+      aiVal.style.color = data.ai_anomaly_score > 35 ? 'var(--red)' : 'var(--green)';
+
+      // Overall Certificate Status
+      const certVal = document.getElementById('ui-cert-status');
+      certVal.innerText = data.overall_cert_status;
+      certVal.style.color = data.overall_cert_status === 'PASSED' ? 'var(--green)' : 'var(--red)';
+
+      // Speed & Mass
+      document.getElementById('ui-speed-val').innerText = `${data.transit_speed_kmh} km/h`;
+      const speedSub = document.getElementById('ui-speed-sub');
+      speedSub.innerText = data.transit_status;
+      speedSub.style.color = data.transit_status === 'Feasible Normal' ? 'var(--green)' : 'var(--red)';
+
+      document.getElementById('ui-mass-val').innerText = data.mass_yield;
+      const massSub = document.getElementById('ui-mass-sub');
+      massSub.innerText = data.mass_status;
+      massSub.style.color = data.mass_status === 'Valid Production Yield' ? 'var(--green)' : 'var(--red)';
+
+      // XAI Reason Breakdown
+      const xai = data.reason_breakdown;
+      document.getElementById('xai-cert-val').innerText = `${xai.certificate_mismatch}%`;
+      document.getElementById('xai-cert-bar').style.width = `${xai.certificate_mismatch}%`;
+
+      document.getElementById('xai-mass-val').innerText = `${xai.mass_imbalance}%`;
+      document.getElementById('xai-mass-bar').style.width = `${xai.mass_imbalance}%`;
+
+      document.getElementById('xai-custody-val').innerText = `${xai.custody_anomaly}%`;
+      document.getElementById('xai-custody-bar').style.width = `${xai.custody_anomaly}%`;
+
+      document.getElementById('xai-transit-val').innerText = `${xai.transit_anomaly}%`;
+      document.getElementById('xai-transit-bar').style.width = `${xai.transit_anomaly}%`;
+
+      const suppTotal = (xai.historical_supplier_risk + xai.other_risk_factors).toFixed(1);
+      document.getElementById('xai-supp-val').innerText = `${suppTotal}%`;
+      document.getElementById('xai-supp-bar').style.width = `${suppTotal}%`;
+
+      document.getElementById('xai-total-val').innerText = `${xai.total_score}%`;
+
+      // Warnings
+      const warnList = document.getElementById('ui-warning-list');
+      warnList.innerHTML = '';
+      if (data.audit_warnings && data.audit_warnings.length > 0) {
+        data.audit_warnings.forEach(w => {
+          const div = document.createElement('div');
+          div.className = 'warning-alert';
+          div.innerText = `⚠️ ${w}`;
+          warnList.appendChild(div);
+        });
+      } else {
+        warnList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">No audit warnings detected. All business rules and certificate registries passed.</div>';
+      }
+    }
+
+    document.getElementById('audit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const batchId = document.getElementById('inp-batch-id').value;
+      const distance = parseFloat(document.getElementById('inp-distance').value);
+      const hours = parseFloat(document.getElementById('inp-hours').value);
+      const rawKg = parseFloat(document.getElementById('inp-raw-kg').value);
+      const fabricKg = parseFloat(document.getElementById('inp-fabric-kg').value);
+
+      const custodyLog = [
+        {"stage": "farm", "entity": document.getElementById('inp-farm-entity').value, "cert_ref": document.getElementById('inp-farm-cert').value, "timestamp": "2026-06-01"},
+        {"stage": "ginning", "entity": document.getElementById('inp-gin-entity').value, "cert_ref": document.getElementById('inp-gin-cert').value, "timestamp": "2026-06-05"},
+        {"stage": "spinning", "entity": document.getElementById('inp-spin-entity').value, "cert_ref": document.getElementById('inp-spin-cert').value, "timestamp": "2026-06-10"},
+        {"stage": "weaving", "entity": document.getElementById('inp-weave-entity').value, "cert_ref": document.getElementById('inp-weave-cert').value, "timestamp": "2026-06-15"},
+        {"stage": "dyeing", "entity": document.getElementById('inp-dye-entity').value, "cert_ref": document.getElementById('inp-dye-cert').value, "timestamp": "2026-06-20"}
+      ];
+
+      try {
+        const res = await fetch(`${API_BASE}/submit-log`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            batch_id: batchId,
+            total_distance_km: distance,
+            transit_hours: hours,
+            raw_cotton_kg: rawKg,
+            finished_fabric_kg: fabricKg,
+            custody_log: custodyLog
+          })
+        });
+        const data = await res.json();
+        renderDashboard(data);
+      } catch (err) {
+        alert('Failed to connect to Agent 09 service: ' + err.message);
+      }
+    });
+
+    fetchBatchStatus('B-TN-2026-001');
+  </script>
+</body>
+</html>
