@@ -450,6 +450,7 @@
       <li><a href="effluent_dashboard.html" class="nav-register-btn" style="background:var(--accent-green,#22c55e); border-color:#22c55e;">Agent 04 ETP →</a></li>
       <li><a href="energy_dashboard.html" class="nav-register-btn" style="background:#3b82f6; border-color:#3b82f6;">Agent 05 Energy →</a></li>
       <li><a href="maintenance_dashboard.html" class="nav-register-btn" style="background:#f97316; border-color:#f97316;">Agent 06 Maintenance →</a></li>
+      <li><a href="demand_dashboard.html" class="nav-register-btn" style="background:#f97316; border-color:#f97316;">Agent 08 Demand →</a></li>
     </ul>
   </nav>
 
@@ -495,6 +496,9 @@
             </a>
             <a href="effluent_dashboard.html" class="btn-outline" style="border-color:#22c55e; color:#4ade80;">
               <i class="fas fa-water"></i> Agent 04 ETP
+            </a>
+            <a href="demand_dashboard.html" class="btn-outline" style="border-color:#f97316; color:#f97316;">
+              <i class="fas fa-chart-line"></i> Agent 08 Demand
             </a>
           </div>
         </div>
@@ -659,19 +663,20 @@
       </div>
 
       <!-- Agent 8 -->
-      <div class="agent-card">
+      <div class="agent-card" style="border-color:#f97316;">
         <div class="agent-card-header">
-          <div class="agent-num-col">08</div>
+          <div class="agent-num-col" style="color:#f97316">08</div>
           <div class="agent-name">Demand Forecasting Agent</div>
         </div>
         <p class="agent-purpose">
-          Predicts upcoming order volume and buyer trends so production scheduling, raw intake, and dyeing capacity are planned before orders land.
+          Predicts upcoming order volume and buyer trends so production scheduling, raw intake, and dyeing capacity are planned before orders land. Powered by Facebook Prophet with 1M training rows.
         </p>
         <div class="agent-tech-tags">
-          <span class="agent-tech-tag accent-tag">Time-Series</span>
-          <span class="agent-tech-tag">Order Analytics</span>
-          <span class="agent-tech-tag">ERP Integration</span>
+          <span class="agent-tech-tag" style="background:rgba(249,115,22,0.15);color:#f97316;border-color:#f97316">Prophet</span>
+          <span class="agent-tech-tag">Seasonality</span>
+          <span class="agent-tech-tag">Time-Series</span>
         </div>
+        <a href="demand_dashboard.html" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;background:rgba(249,115,22,0.15);border:1px solid #f97316;color:#f97316;font-family:'Space Mono',monospace;font-size:0.7rem;text-decoration:none;letter-spacing:1px;text-transform:uppercase;">Open Dashboard →</a>
       </div>
 
       <!-- Agent 9 -->
