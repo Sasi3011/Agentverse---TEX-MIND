@@ -7,3 +7,7 @@ venv/
 .pytest_cache/
 model_artifacts/
 .DS_Store
+data/
+.venv/
+agents/dyeing/data/
+agents/dyeing/model_artifacts/
