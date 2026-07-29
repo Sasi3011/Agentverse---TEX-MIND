@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEXMIND — Multi-Agent Cognitive Twin for Textile Mills</title>
+  <meta name="description" content="TexMind turns 11 specialist AI agents watching every stage of a textile mill into one unified brain that catches defects, saves water and energy, and prevents downtime.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @font-face {
+      font-family: 'Azonix';
+      src: url('Azonix.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --accent: #2563eb; /* Royal Blue */
+      --white: #ffffff;
+      --dark: #0f172a; /* Slate 900 */
+      --border: 3px solid var(--dark);
+      --border-thick: 5px solid var(--dark);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--white);
+      color: var(--dark);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* NOISE TEXTURE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4rem;
+      height: 56px;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: var(--dark);
+      letter-spacing: 0.05em;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      height: 100%;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--dark);
+      padding: 0 1.5rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid rgba(15, 23, 42, 0.15);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    /* HERO */
+    #hero {
+      height: 100vh;
+      padding-top: 56px;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-bottom: var(--border-thick);
+    }
+
+    .hero-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 45% 1fr;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .hero-image-panel {
+      position: relative;
+      overflow: hidden;
+      background: #f1f5f9;
+      clip-path: polygon(0 0, 86% 0, 100% 100%, 0 100%);
+      border-right: var(--border);
+    }
+
+    .hero-image-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.1) saturate(1.1);
+      animation: img-drift 20s ease-in-out infinite alternate;
+      transform-origin: bottom center;
+    }
+
+    @keyframes img-drift {
+      0% { transform: scale(1.03) translateX(0px); }
+      50% { transform: scale(1.05) translateX(-8px); }
+      100% { transform: scale(1.03) translateX(4px); }
+    }
+
+    .hero-image-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 55%;
+      height: 100%;
+      background: linear-gradient(105deg, transparent 25%, rgba(37, 99, 235, 0.08) 50%, transparent 75%);
+      animation: light-sweep 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    @keyframes light-sweep {
+      0% { left: -150%; opacity: 0; }
+      5% { opacity: 1; }
+      45%, 100% { left: 160%; opacity: 0; }
+    }
+
+    .hero-image-panel .img-accent {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 2.5rem;
+      width: 72px;
+      height: 72px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      z-index: 5;
+      animation: accent-ring 3.5s ease-in-out infinite;
+    }
+
+    .hero-image-panel .img-accent::after {
+      content: '';
+      position: absolute;
+      inset: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0.45;
+      animation: accent-core 3.5s ease-in-out infinite;
+    }
+
+    @keyframes accent-ring {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.18); opacity: 1; }
+    }
+
+    @keyframes accent-core {
+      0%, 100% { transform: scale(1); opacity: 0.35; }
+      50% { transform: scale(0.82); opacity: 0.65; }
+    }
+
+    .hero-image-panel .img-grain {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      animation: grain-shift 0.35s steps(1) infinite;
+    }
+
+    @keyframes grain-shift {
+      0% { background-position: 0 0; }
+      25% { background-position: -28px 18px; }
+      50% { background-position: 14px -22px; }
+      75% { background-position: -18px 28px; }
+    }
+
+    .hero-inner {
+      padding: 3rem 4rem 3rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-inner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(15, 23, 42, 0.012) 3px, rgba(15, 23, 42, 0.012) 4px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: rgba(15, 23, 42, 0.55);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-tag .live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: pulse-dot 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse-dot {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 9rem;
+      line-height: 0.85;
+      color: var(--dark);
+      letter-spacing: -0.01em;
+      margin-bottom: 0;
+    }
+
+    .hero-title span {
+      color: var(--accent);
+    }
+
+    .hero-bottom-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 4rem;
+      margin-top: 3.5rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-subtitle {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: rgba(15, 23, 42, 0.65);
+      max-width: 480px;
+      border-left: 4px solid var(--accent);
+      padding-left: 1.2rem;
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--white) !important;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 1.1rem 2.2rem;
+      border: var(--border);
+      cursor: crosshair;
+      display: inline-block;
+      transition: transform 0.12s, box-shadow 0.12s;
+      box-shadow: 5px 5px 0 var(--dark);
+    }
+
+    .btn-primary:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 8px 8px 0 var(--dark);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--dark);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 1.1rem 2.2rem;
+      border: var(--border);
+      cursor: crosshair;
+      display: inline-block;
+      transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+      box-shadow: 5px 5px 0 transparent;
+    }
+
+    .btn-outline:hover {
+      background: rgba(15, 23, 42, 0.05);
+      transform: translate(-3px, -3px);
+      box-shadow: 5px 5px 0 var(--dark);
+    }
+
+    /* STAT BAR */
+    .hero-stat-bar {
+      display: flex;
+      border-top: var(--border);
+      position: relative;
+      z-index: 2;
+      background: #f8fafc;
+    }
+
+    .stat-block {
+      flex: 1;
+      padding: 1.6rem 4rem;
+      border-right: var(--border);
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .stat-block:last-child {
+      border-right: none;
+    }
+
+    .stat-block:hover {
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    .stat-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: rgba(15, 23, 42, 0.45);
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      color: var(--dark);
+      line-height: 1;
+    }
+
+    .stat-value.accent {
+      color: var(--accent);
+    }
+
+    /* TICKER */
+    .hero-ticker {
+      background: var(--accent);
+      border-top: var(--border);
+      height: 44px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: ticker 50s linear infinite;
+      white-space: nowrap;
+    }
+
+    .ticker-item {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 0 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .ticker-sep {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.4);
+      padding: 0 0.5rem;
+      flex-shrink: 0;
+    }
+
+    @keyframes ticker {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
+    }
+
+    /* SECTIONS FULL WIDTH */
+    .section {
+      border-top: var(--border);
+      max-width: none;
+      width: 100%;
+      margin: 0;
+      padding: 5rem 4rem;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.4;
+    }
+
+    .section-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      line-height: 0.9;
+      letter-spacing: 0.01em;
+      margin-bottom: 2rem;
+    }
+
+    /* PROBLEMS & THREATS (Brutalist compare cards) */
+    .problems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .problem-card {
+      border: var(--border);
+      background: var(--white);
+      box-shadow: 6px 6px 0 var(--dark);
+      padding: 2.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .problem-card:hover {
+      box-shadow: 8px 8px 0 var(--accent);
+    }
+
+    .problem-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+      padding-bottom: 1rem;
+    }
+
+    .problem-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: var(--dark);
+    }
+
+    .solution-badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--accent);
+      padding: 0.25rem 0.6rem;
+      border: 1px solid var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .problem-desc {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: rgba(15, 23, 42, 0.7);
+    }
+
+    /* AGENTS GRID */
+    .agents-section-intro {
+      max-width: 720px;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: rgba(15, 23, 42, 0.68);
+      margin-bottom: 2.5rem;
+    }
+
+    .dates-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: var(--border);
+      border-left: var(--border);
+    }
+
+    .date-card {
+      border-right: var(--border);
+      border-bottom: var(--border);
+      padding: 1.75rem 1.5rem;
+      transition: background 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      min-height: 260px;
+    }
+
+    .date-card::before {
+      content: attr(data-num);
+      position: absolute;
+      top: 0.25rem;
+      right: 0.75rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4.5rem;
+      color: rgba(15, 23, 42, 0.04);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .date-card:hover {
+      background: rgba(37, 99, 235, 0.04);
+      box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .date-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .date-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: rgba(15, 23, 42, 0.45);
+      letter-spacing: 0.08em;
+    }
+
+    .date-chip {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--white);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.22rem 0.55rem;
+      line-height: 1.2;
+    }
+
+    .date-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.85rem;
+      color: var(--dark);
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.65rem;
+      padding-right: 2rem;
+    }
+
+    .date-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      color: rgba(15, 23, 42, 0.68);
+      letter-spacing: 0.01em;
+      line-height: 1.65;
+      margin-bottom: 1.25rem;
+      flex: 1;
+    }
+
+    .date-card-footer {
+      margin-top: auto;
+      padding-top: 0.25rem;
+    }
+
+    .btn-action-small {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      border: var(--border);
+      background: transparent;
+      color: var(--dark);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      box-shadow: 3px 3px 0 var(--dark);
+      transition: all 0.12s;
+    }
+
+    .btn-action-small:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 var(--dark);
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    /* ORCHESTRATOR PIPELINE (Rounds style) */
+    .rounds-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      border: var(--border);
+      background: var(--white);
+    }
+
+    .round-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      border-bottom: var(--border);
+      min-height: 180px;
+    }
+
+    .round-row:last-child {
+      border-bottom: none;
+    }
+
+    .round-num-col {
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: var(--border);
+      padding: 1.5rem 0.5rem;
+      gap: 0.5rem;
+    }
+
+    .round-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .round-num-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.52rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+    }
+
+    .round-content {
+      padding: 2.2rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .round-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.4rem;
+      color: var(--dark);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .round-badge {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.7rem;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      margin-bottom: 1rem;
+      width: fit-content;
+    }
+
+    .round-desc {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: rgba(15, 23, 42, 0.7);
+      max-width: 900px;
+    }
+
+    /* ROI IMPACT SECTION (Prizes/ROI styled layout) */
+    .roi-inner {
+      display: grid;
+      grid-template-columns: 40% 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    .roi-card-total {
+      background: var(--dark);
+      color: var(--white);
+      border: var(--border-thick);
+      padding: 4.5rem 2rem;
+      position: relative;
+      box-shadow: 10px 10px 0 var(--dark);
+      text-align: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .roi-card-total:hover {
+      transform: translate(-4px, -4px);
+      box-shadow: 14px 14px 0 var(--accent);
+    }
+
+    .roi-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--white);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      padding: 0.4rem 1rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .roi-value-giant {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4.5rem, 8vw, 7.5rem);
+      line-height: 1;
+      color: var(--white);
+      margin-bottom: 1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .roi-subtext {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .roi-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .roi-item-row {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      border: var(--border);
+      background: var(--white);
+      box-shadow: 5px 5px 0 var(--dark);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .roi-item-row:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 8px 8px 0 var(--accent);
+    }
+
+    .roi-icon-col {
+      background: var(--dark);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      border-right: var(--border);
+    }
+
+    .roi-info-col {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .roi-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      color: var(--dark);
+      line-height: 1.2;
+      margin-bottom: 0.2rem;
+    }
+
+    .roi-desc {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* TECHNOLOGY INTEGRATION (Sponsors styled grid) */
+    .tech-categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .tech-category-box {
+      border: var(--border);
+      background: var(--white);
+      box-shadow: 6px 6px 0 var(--dark);
+      padding: 2rem;
+    }
+
+    .tech-category-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: var(--accent);
+      border-bottom: 2px solid var(--dark);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.05em;
+    }
+
+    .tech-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      padding-bottom: 0.75rem;
+    }
+
+    .tech-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .tech-icon {
+      font-size: 1.8rem;
+      color: var(--dark);
+      width: 36px;
+      text-align: center;
+    }
+
+    .tech-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tech-label-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      color: var(--dark);
+      line-height: 1;
+    }
+
+    .tech-label-desc {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: rgba(15, 23, 42, 0.6);
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--white);
+      border-top: var(--border-thick);
+      padding: 4rem 4rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+    }
+
+    .footer-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      color: var(--dark);
+    }
+
+    .footer-brand span {
+      color: var(--accent);
+    }
+
+    .footer-bottom {
+      max-width: none;
+      margin: 1.5rem auto 0;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: rgba(15, 23, 42, 0.5);
+    }
+
+    @media (max-width: 1200px) {
+      .dates-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 0 2rem; }
+      .hero-body { grid-template-columns: 1fr; }
+      .hero-image-panel { display: none; }
+      .dates-grid { grid-template-columns: repeat(2, 1fr); }
+      .problems-grid { grid-template-columns: 1fr; }
+      .roi-inner { grid-template-columns: 1fr; }
+      .tech-categories { grid-template-columns: 1fr; }
+      .hero-stat-bar { flex-direction: column; }
+      .stat-block { border-right: none; border-bottom: var(--border); padding: 1.6rem 2rem; }
+      .stat-block:last-child { border-bottom: none; }
+      .round-row { grid-template-columns: 100px 1fr; }
+      .hero-title { font-size: 6rem; }
+      .section { padding: 4rem 2rem; }
+      footer { padding: 3rem 2rem 1.5rem; }
+    }
+
+    @media (max-width: 560px) {
+      .dates-grid { grid-template-columns: 1fr; }
+      .date-card { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">TEX<span>MIND</span></a>
+    <ul class="nav-links">
+      <li><a href="#hero">HUB</a></li>
+      <li><a href="#problems">CHALLENGES</a></li>
+      <li><a href="#agents">AGENTS</a></li>
+      <li><a href="#pipeline">BRAIN PIPELINE</a></li>
+      <li><a href="#roi">ROI IMPACT</a></li>
+      <li><a href="#techstack">TECH STACK</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-body">
+      <!-- Left panel -->
+      <div class="hero-image-panel">
+        <img src="hero.png" alt="Textile Mill Cognitive Twin Floor">
+        <div class="img-accent"></div>
+        <div class="img-grain"></div>
+      </div>
+
+      <!-- Right panel -->
+      <div class="hero-inner">
+        <div class="hero-tag">
+          <span class="live-dot"></span> Multi-Agent Cognitive Twin Framework
+        </div>
+
+        <h1 class="hero-title">
+          TEX<span>MIND</span>
+        </h1>
+
+        <div class="hero-bottom-row">
+          <p class="hero-subtitle">
+            11 specialist AI agents watching every stage of a textile mill — fused into one unified cognitive twin that catches defects, optimizes water & energy, and prevents downtime.
+          </p>
+          <div class="hero-cta-row">
+            <a href="dashboard.html" class="btn-primary">
+              <i class="fas fa-gauge-high"></i> Open Hub Live
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAT BAR -->
+    <div class="hero-stat-bar">
+      <div class="stat-block">
+        <div class="stat-label">Specialist Agents</div>
+        <div class="stat-value accent">11</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Telemetry Channels</div>
+        <div class="stat-value">1,000,000</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Master Brain</div>
+        <div class="stat-value accent">1</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">System State</div>
+        <div class="stat-value" style="font-size:1.3rem; font-family:'Space Mono'; color:#22c55e;">REAL-TIME</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-label">Integration</div>
+        <div class="stat-value" style="font-size:1.3rem; font-family:'Space Mono';">DOCKER ACTIVE</div>
+      </div>
+    </div>
+
+    <!-- TICKER -->
+    <div class="hero-ticker">
+      <div class="ticker-track">
+        <span class="ticker-item">Agent 1: Intake</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 2: Defect Detection</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 3: Dyeing optimization</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 4: Effluent compliance</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 5: Energy optimization</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 6: Predictive maintenance</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 7: Worker Safety</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 8: Demand forecasting</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 9: Traceability</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 10: Sustainability ESG</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 11: Notification</span> <span class="ticker-sep">◆</span>
+        
+        <span class="ticker-item">Agent 1: Intake</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 2: Defect Detection</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 3: Dyeing optimization</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 4: Effluent compliance</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 5: Energy optimization</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 6: Predictive maintenance</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 7: Worker Safety</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 8: Demand forecasting</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 9: Traceability</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 10: Sustainability ESG</span> <span class="ticker-sep">◆</span>
+        <span class="ticker-item">Agent 11: Notification</span> <span class="ticker-sep">◆</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHALLENGES SECTION (Brutalist compare cards) -->
+  <section id="problems" class="section">
+    <div class="section-label">01 // Mill Challenges vs AI Solutions</div>
+    <h2 class="section-heading">Operational Painpoints Resolved</h2>
+    
+    <div class="problems-grid">
+      <div class="problem-card">
+        <div class="problem-header">
+          <h3 class="problem-title">Manual Visual QC Checks</h3>
+          <span class="solution-badge">Agent 2 ResNet18</span>
+        </div>
+        <p class="problem-desc">
+          <strong>The Problem:</strong> Human inspection catches less than 70% of weaving defects. Miles of fabric are ruined before errors are noticed.
+          <br><br>
+          <strong>The Solution:</strong> Real-time YOLOv8 / CNN monitoring flags weft cracks and stains within seconds, instantly pausing loom lines.
+        </p>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header">
+          <h3 class="problem-title">Costly Shade Re-Dye Cycles</h3>
+          <span class="solution-badge">Agent 3 k-NN Optimizer</span>
+        </div>
+        <p class="problem-desc">
+          <strong>The Problem:</strong> Re-dyeing is a major hidden expense. Dye masters guess chemical ratios from memory, leading to color deviations.
+          <br><br>
+          <strong>The Solution:</strong> Fast k-NN similarity matches against historical logs to output exact recipe temperatures and liquor ratios.
+        </p>
+      </div>
+
+      <div class="problem-card">
+        <div class="problem-header">
+          <h3 class="problem-title">Environmental Penalties</h3>
+          <span class="solution-badge">Agent 4 ZLD Compliance</span>
+        </div>
+        <p class="problem-desc">
+          <strong>The Problem:</strong> Discharge chemical levels vary and manual tests are infrequent, risking major regulatory compliance fines.
+          <br><br>
+          <strong>The Solution:</strong> Automated ETP sensor dispatches raise instant warnings to prevent unsafe water discharges.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENTS SHOWCASE -->
+  <section id="agents" class="section">
+    <div class="section-label">02 // Cognitive Microservices</div>
+    <h2 class="section-heading">Operational Specialist Agents</h2>
+    <p class="agents-section-intro">
+      Eleven independent microservice agents — each with its own ML model, API, and live dashboard — unified under the Master Brain orchestrator.
+    </p>
+    
+    <div class="dates-grid">
+      <!-- Agent 1 -->
+      <div class="date-card" data-num="01">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 01</span>
+          <span class="date-chip">Intake</span>
+        </div>
+        <div class="date-value">Raw Material Intake</div>
+        <div class="date-desc">
+          Evaluates moisture, tensile strength, and fiber count against strict rule gates and classifier predictions. Flags substandard shipments at the gate.
+        </div>
+        <div class="date-card-footer">
+          <a href="1.Raw Material Intake Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 2 -->
+      <div class="date-card" data-num="02">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 02</span>
+          <span class="date-chip">Defect</span>
+        </div>
+        <div class="date-value">Weaving Defect</div>
+        <div class="date-desc">
+          Analyzes continuous loom fabric lines via computer vision. Identifies holes, horizontal/vertical cracks, and stains instantly to halt damaged runs.
+        </div>
+        <div class="date-card-footer">
+          <a href="2.Weaving Defect Detection Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 3 -->
+      <div class="date-card" data-num="03">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 03</span>
+          <span class="date-chip">Dyeing</span>
+        </div>
+        <div class="date-value">Recipe Optimization</div>
+        <div class="date-desc">
+          Recommends optimal chemical percentages, temperature-time configurations, and liquor ratios to secure shade matching, cutting re-dye costs.
+        </div>
+        <div class="date-card-footer">
+          <a href="3.Dyeing Recipe Optimization Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 4 -->
+      <div class="date-card" data-num="04">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 04</span>
+          <span class="date-chip">ETP</span>
+        </div>
+        <div class="date-value">Effluent Compliance</div>
+        <div class="date-desc">
+          Tracks treatment plant discharge parameters (pH, TDS, COD, temperature) in real time to guarantee ZLD regulatory compliance.
+        </div>
+        <div class="date-card-footer">
+          <a href="4.Effluent Compliance Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 5 -->
+      <div class="date-card" data-num="05">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 05</span>
+          <span class="date-chip">Energy</span>
+        </div>
+        <div class="date-value">Energy Optimization</div>
+        <div class="date-desc">
+          Evaluates real-time power consumption against custom Isolation Forest baselines to identify utility leakages and mechanical frictions.
+        </div>
+        <div class="date-card-footer">
+          <a href="5.Energy Optimization Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 6 -->
+      <div class="date-card" data-num="06">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 06</span>
+          <span class="date-chip">Maintenance</span>
+        </div>
+        <div class="date-value">Predictive Maintenance</div>
+        <div class="date-desc">
+          Tracks loom vibration signatures and temperatures to predict remaining useful life and prevent forced gear breakdowns.
+        </div>
+        <div class="date-card-footer">
+          <a href="6.Predictive Maintenance Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 7 -->
+      <div class="date-card" data-num="07">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 07</span>
+          <span class="date-chip">Safety</span>
+        </div>
+        <div class="date-value">Worker Safety</div>
+        <div class="date-desc">
+          Monitors CCTV camera feeds for PPE compliance (helmets, vests, ear protection) and restricts high-risk hazard-zone entries.
+        </div>
+        <div class="date-card-footer">
+          <a href="7.Worker Safety Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 8 -->
+      <div class="date-card" data-num="08">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 08</span>
+          <span class="date-chip">Demand</span>
+        </div>
+        <div class="date-value">Demand Forecasting</div>
+        <div class="date-desc">
+          Forecasts order volumes and yarn needs using time-series models to optimize raw material inventory and plant schedules.
+        </div>
+        <div class="date-card-footer">
+          <a href="8.Demand Forecasting Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 9 -->
+      <div class="date-card" data-num="09">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 09</span>
+          <span class="date-chip">Traceability</span>
+        </div>
+        <div class="date-value">Chain of Custody</div>
+        <div class="date-desc">
+          Validates cotton farm raw materials, GOTS certificates, transit timelines, and transaction compliance maps.
+        </div>
+        <div class="date-card-footer">
+          <a href="9.Supply Chain Traceability Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 10 -->
+      <div class="date-card" data-num="10">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 10</span>
+          <span class="date-chip">ESG</span>
+        </div>
+        <div class="date-value">Sustainability Audit</div>
+        <div class="date-desc">
+          Aggregates emissions, chemical residues, and custody trails into dynamic reports matching Zara, M&amp;S, and H&amp;M standards.
+        </div>
+        <div class="date-card-footer">
+          <a href="10.Sustainability & Carbon Reporting Agent.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+
+      <!-- Agent 11 -->
+      <div class="date-card" data-num="11">
+        <div class="date-card-header">
+          <span class="date-num">AGENT 11</span>
+          <span class="date-chip">Escalation</span>
+        </div>
+        <div class="date-value">Notification Engine</div>
+        <div class="date-desc">
+          Dispatches emergency voice alerts (local Asterisk PBX), WhatsApp, and SMS messages using a dynamic escalation rule matrix.
+        </div>
+        <div class="date-card-footer">
+          <a href="11.Notification.html" class="btn-action-small"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open UI</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 2.5rem; display: flex; justify-content: center;">
+      <a href="dashboard.html" class="btn-primary"><i class="fas fa-gauge-high"></i> Open Unified Agent Hub</a>
+    </div>
+  </section>
+  <section id="pipeline" class="section">
+    <div class="section-label">03 // Master Brain Orchestration</div>
+    <h2 class="section-heading">Operational Pipeline Workflow</h2>
+    
+    <div class="rounds-grid">
+      <!-- Round 1 -->
+      <div class="round-row">
+        <div class="round-num-col">
+          <div class="round-num">01</div>
+          <div class="round-num-label">Phase One</div>
+        </div>
+        <div class="round-content">
+          <div class="round-badge">Material Validation</div>
+          <h3 class="round-title">Intake & Safety Check</h3>
+          <p class="round-desc">
+            Raw material batch details are submitted to the Intake Agent. The pipeline halts immediately if quality checks (tensile strength, moisture level) flag standard variances.
+          </p>
+        </div>
+      </div>
+
+      <!-- Round 2 -->
+      <div class="round-row">
+        <div class="round-num-col">
+          <div class="round-num">02</div>
+          <div class="round-num-label">Phase Two</div>
+        </div>
+        <div class="round-content">
+          <div class="round-badge">Visual Inspection</div>
+          <h3 class="round-title">Loom Defect Detection</h3>
+          <p class="round-desc">
+            Once raw material is approved, weaving begins. Computer Vision models check the fabric stream and halt the run if structural defects are identified.
+          </p>
+        </div>
+      </div>
+
+      <!-- Round 3 -->
+      <div class="round-row">
+        <div class="round-num-col">
+          <div class="round-num">03</div>
+          <div class="round-num-label">Phase Three</div>
+        </div>
+        <div class="round-content">
+          <div class="round-badge">Chemical Formulation</div>
+          <h3 class="round-title">Dyeing Recipe Optimization</h3>
+          <p class="round-desc">
+            The Dyeing Agent computes optimal recipe structures matching shade targets and outputs temperature-time logs to prevent re-dye cycles.
+          </p>
+        </div>
+      </div>
+
+      <!-- Round 4 -->
+      <div class="round-row">
+        <div class="round-num-col">
+          <div class="round-num">04</div>
+          <div class="round-num-label">Phase Four</div>
+        </div>
+        <div class="round-content">
+          <div class="round-badge">Audit Verification</div>
+          <h3 class="round-title">Traceability & ESG Audit</h3>
+          <p class="round-desc">
+            Material logs are submitted for cert validations, carbon footprints, and compliance summaries matching global export standards.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROI IMPACT SECTION (Prizes/ROI styled layout) -->
+  <section id="roi" class="section">
+    <div class="section-label">04 // Business Impact & ROI</div>
+    <h2 class="section-heading">Tangible Financial Returns</h2>
+    
+    <div class="roi-inner">
+      <div class="roi-card-total">
+        <span class="roi-badge">Combined Cost Savings</span>
+        <div class="roi-value-giant">₹48L</div>
+        <div class="roi-subtext">Estimated annual savings per 100 looms</div>
+      </div>
+      
+      <div class="roi-list">
+        <div class="roi-item-row">
+          <div class="roi-icon-col"><i class="fa-solid fa-droplet"></i></div>
+          <div class="roi-info-col">
+            <h3 class="roi-title">-85% Re-Dye Rate</h3>
+            <p class="roi-desc">Precision recipe optimization matches shades on the first attempt, eliminating chemical and water waste.</p>
+          </div>
+        </div>
+        
+        <div class="roi-item-row">
+          <div class="roi-icon-col"><i class="fa-solid fa-scissors"></i></div>
+          <div class="roi-info-col">
+            <h3 class="roi-title">-30% Weaving Scrap</h3>
+            <p class="roi-desc">Real-time ResNet18 visual inspection flags loom defects instantly, saving hundreds of meters of yarn.</p>
+          </div>
+        </div>
+        
+        <div class="roi-item-row">
+          <div class="roi-icon-col"><i class="fa-solid fa-gauge-simple-high"></i></div>
+          <div class="roi-info-col">
+            <h3 class="roi-title">-18% Energy Utilities</h3>
+            <p class="roi-desc">Isolation Forest anomalies flag utility leakage on heavy compressors and boilers before monthly bills land.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNOLOGY DEEP DIVE (Tech Stack Category Blocks) -->
+  <section id="techstack" class="section">
+    <div class="section-label">05 // Platform Technology Stack</div>
+    <h2 class="section-heading">Integrated Development Pipeline</h2>
+    
+    <div class="tech-categories">
+      <!-- Category 1 -->
+      <div class="tech-category-box">
+        <h3 class="tech-category-title">Neural & Inference Models</h3>
+        <div class="tech-list">
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-solid fa-brain"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">PyTorch & ResNet18</span>
+              <span class="tech-label-desc">CV Defect Detection (Agent 02)</span>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">Facebook Prophet</span>
+              <span class="tech-label-desc">Time-Series Forecast (Agent 08)</span>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-solid fa-calculator"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">Isolation Forest</span>
+              <span class="tech-label-desc">Energy Anomaly Detection (Agent 05)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 2 -->
+      <div class="tech-category-box">
+        <h3 class="tech-category-title">Data & Relational Layers</h3>
+        <div class="tech-list">
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-solid fa-database"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">PostgreSQL & SQLite</span>
+              <span class="tech-label-desc">Microservice State & Alert Logs</span>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-solid fa-diagram-project"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">Neo4j Graph Database</span>
+              <span class="tech-label-desc">Supply Chain Custody Lineage</span>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-solid fa-file-csv"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">Structured CSV Data</span>
+              <span class="tech-label-desc">Historical Batch Recipes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 3 -->
+      <div class="tech-category-box">
+        <h3 class="tech-category-title">Core Systems & VoIP</h3>
+        <div class="tech-list">
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-solid fa-phone"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">Asterisk PBX & ARI</span>
+              <span class="tech-label-desc">Tamil Automated IVR Dispatcher</span>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-brands fa-whatsapp"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">whatsapp-web.js</span>
+              <span class="tech-label-desc">Node.js Express Push Gateway</span>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><i class="fa-brands fa-docker"></i></div>
+            <div class="tech-details">
+              <span class="tech-label-name">Docker & Compose</span>
+              <span class="tech-label-desc">Microservices Containers Orchestrator</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">TEX<span>MIND</span></div>
+      <div style="font-family:'Space Mono'; font-size:0.8rem; color:var(--dark); opacity:0.6;">
+        Multi-Agent Cognitive Twin Subsystem Platform
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 TEXMIND • Industry 4.0</span>
+      <span>Built with HackNexus brutalist design system</span>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEXMIND — Unified Microservices Cognitive Twin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="texmind-scroll.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --accent: #2563eb;
+      --dark: #0f172a;
+      --muted: rgba(15, 23, 42, 0.55);
+      --sidebar-bg: #ffffff;
+      --border: 3px solid var(--dark);
+    }
+
+    body {
+      background: #ffffff;
+      color: var(--dark);
+      font-family: 'DM Sans', sans-serif;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 310px;
+      background: var(--sidebar-bg);
+      border-right: var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      height: 100%;
+    }
+
+    .sidebar-brand-wrapper {
+      padding: 1.25rem 1.5rem 1rem;
+      background: #ffffff;
+      border-bottom: 2px solid rgba(15, 23, 42, 0.08);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      color: var(--dark);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .sidebar-brand span {
+      color: var(--accent);
+    }
+
+    .sidebar-subtitle {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    .sidebar-menu-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      padding: 0 1.5rem;
+      margin: 1rem 0 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      list-style: none;
+      padding: 0 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .menu-item a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: var(--dark);
+      padding: 0.58rem 0.75rem;
+      display: grid;
+      grid-template-columns: 1.4rem 1.1rem 1fr;
+      align-items: center;
+      column-gap: 0.55rem;
+      border: 2px solid transparent;
+      border-radius: 2px;
+      transition: background 0.15s, border-color 0.15s;
+      cursor: pointer;
+      line-height: 1.25;
+      min-height: 2.35rem;
+    }
+
+    .menu-item .agent-num {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .menu-item a i {
+      width: 1.1rem;
+      text-align: center;
+      font-size: 0.88rem;
+      flex-shrink: 0;
+      opacity: 0.8;
+    }
+
+    .menu-item .menu-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .menu-item a:hover {
+      background: rgba(37, 99, 235, 0.06);
+      border-color: rgba(15, 23, 42, 0.15);
+    }
+
+    .menu-item.active a {
+      background: var(--accent) !important;
+      color: #ffffff !important;
+      border-color: var(--dark) !important;
+      box-shadow: 2px 2px 0 var(--dark) !important;
+    }
+
+    .menu-item.active a .agent-num,
+    .menu-item.active a i {
+      color: rgba(255, 255, 255, 0.85);
+      opacity: 1;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: var(--border);
+      background: #f8fafc;
+      flex-shrink: 0;
+    }
+
+    .back-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--dark);
+      transition: color 0.15s;
+    }
+
+    .back-btn:hover {
+      color: var(--accent);
+    }
+
+    /* MAIN VIEWPORT */
+    .viewport {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+    }
+
+    .viewport-header {
+      height: 56px;
+      min-height: 56px;
+      border-bottom: var(--border);
+      padding: 0 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .active-agent-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.45rem;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .system-status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+    }
+
+    .iframe-container {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      min-width: 0;
+      background: #ffffff;
+      border: none;
+      overflow: auto;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand-wrapper">
+      <div class="sidebar-brand">TEX<span>MIND</span></div>
+      <div class="sidebar-subtitle">Unified Agent Hub</div>
+    </div>
+
+    <div class="sidebar-menu-label">All Agents (12)</div>
+    
+    <ul class="sidebar-menu">
+      <li class="menu-item active" data-src="0.Master Orchestrator.html" data-title="Agent 00 — Master Brain Orchestrator">
+        <a><span class="agent-num">00</span><i class="fa-solid fa-brain"></i><span class="menu-label">Master Brain</span></a>
+      </li>
+      <li class="menu-item" data-src="1.Raw Material Intake Agent.html" data-title="Agent 01 — Raw Material Intake">
+        <a><span class="agent-num">01</span><i class="fa-solid fa-boxes-packing"></i><span class="menu-label">Raw Intake</span></a>
+      </li>
+      <li class="menu-item" data-src="2.Weaving Defect Detection Agent.html" data-title="Agent 02 — Weaving Defect Detection">
+        <a><span class="agent-num">02</span><i class="fa-solid fa-eye"></i><span class="menu-label">Weaving Defect</span></a>
+      </li>
+      <li class="menu-item" data-src="3.Dyeing Recipe Optimization Agent.html" data-title="Agent 03 — Dyeing Recipe Optimization">
+        <a><span class="agent-num">03</span><i class="fa-solid fa-flask"></i><span class="menu-label">Dyeing Recipe</span></a>
+      </li>
+      <li class="menu-item" data-src="4.Effluent Compliance Agent.html" data-title="Agent 04 — Effluent Compliance (ETP)">
+        <a><span class="agent-num">04</span><i class="fa-solid fa-water"></i><span class="menu-label">ETP Compliance</span></a>
+      </li>
+      <li class="menu-item" data-src="5.Energy Optimization Agent.html" data-title="Agent 05 — Energy & Utility Optimization">
+        <a><span class="agent-num">05</span><i class="fa-solid fa-bolt"></i><span class="menu-label">Energy Optimization</span></a>
+      </li>
+      <li class="menu-item" data-src="6.Predictive Maintenance Agent.html" data-title="Agent 06 — Predictive Maintenance">
+        <a><span class="agent-num">06</span><i class="fa-solid fa-screwdriver-wrench"></i><span class="menu-label">Predictive Maintenance</span></a>
+      </li>
+      <li class="menu-item" data-src="7.Worker Safety Agent.html" data-title="Agent 07 — Worker Safety Monitor">
+        <a><span class="agent-num">07</span><i class="fa-solid fa-hard-hat"></i><span class="menu-label">Worker Safety</span></a>
+      </li>
+      <li class="menu-item" data-src="8.Demand Forecasting Agent.html" data-title="Agent 08 — Demand Forecasting">
+        <a><span class="agent-num">08</span><i class="fa-solid fa-chart-line"></i><span class="menu-label">Demand Forecast</span></a>
+      </li>
+      <li class="menu-item" data-src="9.Supply Chain Traceability Agent.html" data-title="Agent 09 — Supply Chain Traceability">
+        <a><span class="agent-num">09</span><i class="fa-solid fa-link"></i><span class="menu-label">Traceability</span></a>
+      </li>
+      <li class="menu-item" data-src="10.Sustainability & Carbon Reporting Agent.html" data-title="Agent 10 — Sustainability ESG">
+        <a><span class="agent-num">10</span><i class="fa-solid fa-leaf"></i><span class="menu-label">Sustainability ESG</span></a>
+      </li>
+      <li class="menu-item" data-src="11.Notification.html" data-title="Agent 11 — Notification Subsystem">
+        <a><span class="agent-num">11</span><i class="fa-solid fa-phone-volume"></i><span class="menu-label">Alert Escalation</span></a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+    </div>
+  </div>
+
+  <!-- MAIN VIEWPORT -->
+  <div class="viewport">
+    <div class="viewport-header">
+      <div class="active-agent-title" id="active-title">Agent 00 — Master Brain Orchestrator</div>
+      <div class="system-status-indicator">
+        <div class="status-dot"></div>
+        <span>All Systems Online</span>
+      </div>
+    </div>
+    <div class="iframe-container">
+      <iframe id="viewport-iframe" src="0.Master Orchestrator.html"></iframe>
+    </div>
+  </div>
+
+  <!-- TEXMIND AI COPILOT CHATBOT WIDGET -->
+  <button id="copilot-toggle-btn" class="copilot-btn" title="TexMind Copilot" aria-label="TexMind Copilot">
+    <i class="fa-solid fa-robot"></i>
+  </button>
+
+  <div id="copilot-panel" class="copilot-panel">
+    <div class="copilot-header">
+      <div class="copilot-title"><i class="fa-solid fa-brain"></i> TexMind Agent Copilot</div>
+      <button id="copilot-close-btn" class="copilot-close">&times;</button>
+    </div>
+
+    <div class="copilot-quick-pills">
+      <button class="copilot-pill" onclick="sendQuickQuery('Explain Master Brain Orchestrator')">00 Master Brain</button>
+      <button class="copilot-pill" onclick="sendQuickQuery('How does Agent 01 Intake work?')">01 Intake</button>
+      <button class="copilot-pill" onclick="sendQuickQuery('Explain Agent 04 ETP Compliance')">04 Effluent</button>
+      <button class="copilot-pill" onclick="sendQuickQuery('How does Agent 07 Safety AI work?')">07 Worker Safety</button>
+      <button class="copilot-pill" onclick="sendQuickQuery('How does Agent 11 Tamil IVR work?')">11 Notification</button>
+    </div>
+
+    <div class="copilot-chat-body" id="copilot-messages">
+      <div class="chat-msg bot">
+        Hello! I am your <strong>TexMind Cognitive Suite AI Copilot</strong>, powered by <strong>Google Gemini</strong>. I analyze live agent telemetry, pipeline outputs, and ML model states across all 11 microservice agents. Ask me anything!
+      </div>
+    </div>
+
+    <div class="copilot-footer">
+      <input type="text" id="copilot-input" placeholder="Ask about any agent or process..." onkeypress="handleKeyPress(event)">
+      <button class="copilot-send-btn" onclick="submitCopilotQuery()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <style>
+    /* COPILOT CHATBOT STYLING */
+    .copilot-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      background: var(--accent);
+      color: #ffffff;
+      border: var(--border);
+      width: 52px;
+      height: 52px;
+      padding: 0;
+      font-family: 'Space Mono', monospace;
+      font-size: 1.25rem;
+      box-shadow: 4px 4px 0 var(--dark);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .copilot-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--dark);
+    }
+    .copilot-panel {
+      position: fixed;
+      bottom: 85px;
+      right: 24px;
+      width: 420px;
+      height: 540px;
+      z-index: 9999;
+      background: #ffffff;
+      border: var(--border);
+      box-shadow: 6px 6px 0 var(--dark);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .copilot-panel.open {
+      display: flex;
+    }
+    .copilot-header {
+      background: var(--dark);
+      color: #ffffff;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .copilot-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .copilot-close {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .copilot-quick-pills {
+      padding: 0.6rem 0.8rem;
+      background: #f8fafc;
+      border-bottom: 2px solid #0f172a;
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .copilot-pill {
+      background: #ffffff;
+      border: 1px solid #0f172a;
+      padding: 0.25rem 0.6rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .copilot-pill:hover {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .copilot-chat-body {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      background: #ffffff;
+    }
+    .chat-msg {
+      max-width: 85%;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      border: 2px solid #0f172a;
+    }
+    .chat-msg.bot {
+      align-self: flex-start;
+      background: #f1f5f9;
+      color: #0f172a;
+      box-shadow: 2px 2px 0 #0f172a;
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 2px 2px 0 #0f172a;
+    }
+    .copilot-footer {
+      padding: 0.8rem;
+      border-top: var(--border);
+      background: #ffffff;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .copilot-footer input {
+      flex: 1;
+      border: 2px solid #0f172a;
+      padding: 0.6rem 0.8rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      outline: none;
+    }
+    .copilot-send-btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: 2px solid #0f172a;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+  </style>
+
+  <script>
+    document.querySelectorAll(".menu-item").forEach(item => {
+      item.addEventListener("click", () => {
+        // Toggle active status
+        document.querySelectorAll(".menu-item").forEach(el => el.classList.remove("active"));
+        item.classList.add("active");
+
+        // Swap iframe src
+        const src = item.getAttribute("data-src");
+        const title = item.getAttribute("data-title");
+        document.getElementById("viewport-iframe").src = src;
+        document.getElementById("active-title").innerText = title;
+      });
+    });
+
+    // COPILOT UI LOGIC
+    const panel = document.getElementById("copilot-panel");
+    document.getElementById("copilot-toggle-btn").addEventListener("click", () => {
+      panel.classList.toggle("open");
+    });
+    document.getElementById("copilot-close-btn").addEventListener("click", () => {
+      panel.classList.remove("open");
+    });
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') submitCopilotQuery();
+    }
+
+    function sendQuickQuery(text) {
+      document.getElementById("copilot-input").value = text;
+      submitCopilotQuery();
+    }
+
+    async function submitCopilotQuery() {
+      const input = document.getElementById("copilot-input");
+      const query = input.value.trim();
+      if (!query) return;
+
+      appendMessage(query, "user");
+      input.value = "";
+
+      // Show typing indicator
+      const typingId = "msg-" + Date.now();
+      appendMessage("<em><i class='fa-solid fa-spinner fa-spin'></i> Researching live agent data & consulting Gemini AI...</em>", "bot", typingId);
+
+      try {
+        const res = await fetch("http://localhost:8020/orchestrator/copilot-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: query })
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          removeMessage(typingId);
+          let badge = "";
+          if (data.source) {
+            badge = `<div style="font-size:0.65rem;color:#64748b;margin-top:0.4rem;font-family:'Space Mono',monospace;">✦ ${data.source}${data.agents_polled ? ' · ' + data.agents_polled + ' agents polled' : ''}</div>`;
+          }
+          appendMessage(formatMarkdown(data.response) + badge, "bot");
+          return;
+        }
+        const err = await res.json().catch(() => ({}));
+        removeMessage(typingId);
+        appendMessage(`Gemini copilot error: ${err.detail || res.statusText}. Check orchestrator logs and GEMINI_API_KEY in .env.`, "bot");
+      } catch (err) {
+        removeMessage(typingId);
+        appendMessage("Master Brain API offline. Start the orchestrator agent on port 8020 and try again.", "bot");
+      }
+    }
+
+    function removeMessage(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function formatMarkdown(text) {
+      if (!text) return "";
+      return text
+        .replace(/### (.*?)\n/g, '<h4 style="font-family:\'Bebas Neue\'; font-size:1.3rem; margin:0.4rem 0;">$1</h4>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code style="background:#e2e8f0; padding:0.1rem 0.3rem; font-family:\'Space Mono\'; font-size:0.75rem;">$1</code>')
+        .replace(/\n- /g, '<br>• ')
+        .replace(/\n\n/g, '<br><br>');
+    }
+
+    function appendMessage(text, sender, id = null) {
+      const msgs = document.getElementById("copilot-messages");
+      const div = document.createElement("div");
+      div.className = `chat-msg ${sender}`;
+      if (id) div.id = id;
+      div.innerHTML = text;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  </script>
+</body>
+</html>

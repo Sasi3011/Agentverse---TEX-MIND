@@ -12,18 +12,144 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  orchestrator:
+    build:
+      context: ./agents/0.Master Orchestrator
+      dockerfile: Dockerfile
+    ports:
+      - "8020:8020"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+      - INTAKE_AGENT_URL=http://intake-agent:8001
+      - DEFECT_AGENT_URL=http://defect-agent:8002
+      - DYE_AGENT_URL=http://dyeing-agent:8003
+      - EFFLUENT_AGENT_URL=http://effluent-agent:8004
+      - ENERGY_AGENT_URL=http://energy-agent:8005
+      - MAINTENANCE_AGENT_URL=http://maintenance-agent:8006
+      - SAFETY_AGENT_URL=http://safety-agent:8007
+      - DEMAND_AGENT_URL=http://demand-agent:8008
+      - TRACE_AGENT_URL=http://traceability-agent:8009
+      - SUSTAINABILITY_AGENT_URL=http://sustainability-agent:8010
+      - NOTIFICATION_AGENT_URL=http://notification-agent:8011
+    depends_on:
+      - postgres
+
   intake-agent:
-    build: 
-      context: ./agents/intake
+    build:
+      context: ./agents/1.Raw Material Intake Agent
       dockerfile: Dockerfile
     ports:
       - "8001:8001"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
-      - MOISTURE_MAX=8.5
-      - STRENGTH_MIN=18.0
     depends_on:
       - postgres
+
+  defect-agent:
+    build:
+      context: ./agents/2.Weaving Defect Detection Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  dyeing-agent:
+    build:
+      context: ./agents/3.Dyeing Recipe Optimization Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  effluent-agent:
+    build:
+      context: ./agents/4.Effluent Compliance Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  energy-agent:
+    build:
+      context: ./agents/5.Energy Optimization Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8005"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  maintenance-agent:
+    build:
+      context: ./agents/6.Predictive Maintenance Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  safety-agent:
+    build:
+      context: ./agents/7.Worker Safety Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8007:8007"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  demand-agent:
+    build:
+      context: ./agents/8.Demand Forecasting Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8008:8008"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  traceability-agent:
+    build:
+      context: ./agents/9.Supply Chain Traceability Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8009:8009"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  sustainability-agent:
+    build:
+      context: ./agents/10.Sustainability & Carbon Reporting Agent
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8010"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+
+  notification-agent:
+    build:
+      context: ./agents/11.Notification
+      dockerfile: Dockerfile
+    ports:
+      - "8011:8011"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/texverse
+      - ALERT_PHONE_NUMBER=${ALERT_PHONE_NUMBER}
+      - ASTERISK_HOST=asterisk
+      - ASTERISK_PORT=8088
+      - ASTERISK_USER=admin
+      - ASTERISK_PASS=admin
+    depends_on:
+      - postgres
+      - asterisk
+
+  asterisk:
+    image: andrius/asterisk:latest
+    ports:
+      - "8088:8088"
+      - "5060:5060/udp"
+    volumes:
+      - ./asterisk_conf:/etc/asterisk
 
 volumes:
   pgdata:

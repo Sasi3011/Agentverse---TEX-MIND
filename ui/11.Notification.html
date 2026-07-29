@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 11: Local Voice & Messaging Notification | TEXMIND</title>
+  <meta name="description" content="TEXMIND Agent 11 — Local Voice & Messaging Notification Agent. Automated Tamil voice call softphone simulation, WhatsApp/SMS escalation engine, and inbound IVR query console.">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:ital,wght@0,400;0,600;0,900;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────────────────── */
+    :root {
+      --bg:            #f8fafc;
+      --surface:       #ffffff;
+      --surface2:      #f1f5f9;
+      --border:        #e2e8f0;
+      --border-bright: #cbd5e1;
+      --accent:        #f43f5e;
+      --accent-dim:    rgba(244, 63, 94, 0.12);
+      --accent-glow:   rgba(244, 63, 94, 0.35);
+      --green:         #22c55e;
+      --green-dim:     rgba(34,197,94,0.12);
+      --red:           #ef4444;
+      --red-dim:       rgba(239,68,68,0.12);
+      --yellow:        #eab308;
+      --yellow-dim:    rgba(234,179,8,0.12);
+      --text:          #0f172a;
+      --text-muted:    #64748b;
+      --text-dim:      #94a3b8;
+      --font-mono:     'Space Mono', monospace;
+      --font-sans:     'Inter', sans-serif;
+      --font-display:  'Bebas Neue', sans-serif;
+      --radius:        4px;
+      --transition:    0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.04; mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── Navigation ─────────────────────────────────────────────────────────── */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 3px;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--border);
+    }
+    .nav-breadcrumb strong { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .api-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid var(--border-bright);
+      background: var(--surface2);
+    }
+    .api-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* ── Main Layout ─────────────────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      position: relative;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title i { color: var(--accent); }
+
+    /* ── Metrics Grid ────────────────────────────────────────────────────────── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .metric-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 1.2rem;
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Softphone Simulator Card ────────────────────────────────────────────── */
+    .softphone-card {
+      background: #ffffff;
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .phone-screen {
+      background: #050811;
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .phone-status {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tamil-speech-box {
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 10px;
+      color: var(--text);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .key-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      color: var(--text);
+      padding: 10px;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 6px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .key-btn:hover { background: var(--accent); color: #000; }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
+    label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-size: 0.88rem;
+      outline: none;
+      transition: var(--transition);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      padding: 0.85rem 1.5rem;
+      border: none;
+      border-radius: var(--radius);
+      transition: var(--transition);
+      width: 100%;
+    }
+    .btn-primary:hover { background: #fb7185; box-shadow: 0 0 15px var(--accent-glow); }
+  
+    /* NAV (Added dynamically) */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #ffffff;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: #0f172a;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: #f43f5e;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links li {
+      display: flex;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #475569;
+      padding: 0 0.8rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      background: #f43f5e;
+      color: #0f172a;
+    }
+
+  
+    .btn, .btn-primary {
+      color: #ffffff !important;
+    }
+    .btn:hover, .btn-primary:hover {
+      color: #ffffff !important;
+    }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="agent-shared.css">
+  <script src="agent-embed.js"></script>
+</head>
+<body>
+
+  <!-- Navigation -->
+  
+
+  <main>
+    <!-- Top Summary Banner -->
+    <div class="card full-width">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-phone-volume"></i> LIVE ESCALATION & VOICE CALL DISPATCHER</div>
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+          ACTIVE ALERT ID: <strong id="h-alert-id" style="color: var(--accent);">ALT-INIT-01</strong>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Alert Status</span>
+          <span class="metric-value" id="m-status" style="color: var(--accent);">WAITING ACK</span>
+          <span class="metric-sub">Level 1 Softphone Active</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Target Recipient</span>
+          <span class="metric-value" id="m-role" style="font-size: 1.5rem;">SHIFT OPERATOR</span>
+          <span class="metric-sub">Contact: Ext 101 (Zoiper)</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Current Channel</span>
+          <span class="metric-value" id="m-channel" style="font-size: 1.5rem;">TAMIL VOICE</span>
+          <span class="metric-sub">Asterisk Softphone Call</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Escalation Timeout</span>
+          <span class="metric-value" id="m-timeout">120s</span>
+          <span class="metric-sub">Auto-Escalates to WhatsApp</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Left Column: System Audio Alert -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-bullhorn"></i> SYSTEM LOUD EMERGENCY AUDIO ALERT</div>
+      </div>
+
+      <div class="softphone-card" style="border-color: var(--red); box-shadow: 0 0 20px var(--red-dim);">
+        <div class="phone-screen" style="border-color: var(--red);">
+          <div class="phone-status" style="color: var(--red);">
+            <i class="fa-solid fa-triangle-exclamation fa-fade"></i>
+            <span id="call-state-text">SYSTEM AUDIO BROADCAST ACTIVE</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">SPOKEN ALERT AUDIO PROMPT:</div>
+          <div class="tamil-speech-box" id="tamil-audio-text" style="background: var(--red-dim); border-color: var(--red);">
+            "எச்சரிக்கை! கழிவுநீர் சுத்திகரிப்பு பிரிவில் pH அளவு 9.4 ஆக உயர்ந்துள்ளது. உடனே சரிபார்க்கவும்."
+          </div>
+        </div>
+
+        <div style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);">CLICK TO ACKNOWLEDGE AND SILENCE ALARM:</div>
+        <button class="btn-primary" onclick="sendDTMF('1')" style="background: var(--red); color: white;"><i class="fa-solid fa-bell-slash"></i> ACKNOWLEDGE ALERT</button>
+
+        <button class="btn-primary" onclick="triggerRealPhoneCall()" style="background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright); margin-top: 10px;"><i class="fa-solid fa-volume-high"></i> TEST LOUD ALARM & SPEECH NOW</button>
+      </div>
+    </div>
+
+    <!-- Right Column: Trigger Alert & Inbound IVR Console -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-tower-cell"></i> TRIGGER TEST ALERT & TAMIL IVR CONSOLE</div>
+      </div>
+
+      <form id="trigger-form" style="margin-bottom: 1.5rem;">
+        <div class="form-group">
+          <label>Source Pipeline Agent</label>
+          <select id="f-source">
+            <option value="Agent 04 (Effluent)">Agent 04 (Effluent Compliance)</option>
+            <option value="Agent 02 (Weaving Defect)">Agent 02 (Weaving Defect Detection)</option>
+            <option value="Agent 06 (Maintenance)">Agent 06 (Predictive Maintenance)</option>
+            <option value="Agent 07 (Worker Safety)">Agent 07 (Worker Safety)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Event Type</label>
+            <select id="f-event">
+              <option value="effluent_ph">effluent_ph (pH Exceeded)</option>
+              <option value="weaving_defect">weaving_defect (Fabric Defect)</option>
+              <option value="safety_violation">safety_violation (PPE Missing)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Severity</label>
+            <select id="f-severity">
+              <option value="CRITICAL" selected>CRITICAL (Voice Call)</option>
+              <option value="WARNING">WARNING (WhatsApp)</option>
+              <option value="INFO">INFO (Dashboard Only)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary"><i class="fa-solid fa-bolt"></i> DISPATCH CRITICAL ALERT VIA AGENT 11</button>
+      </form>
+
+      <div style="border-top: 1px dashed var(--border); padding-top: 1rem;">
+        <div class="card-title" style="margin-bottom: 0.8rem;"><i class="fa-solid fa-microphone"></i> TAMIL INBOUND IVR VOICE QUERY</div>
+        <form id="ivr-form">
+          <div class="form-group">
+            <label>Supervisor Spoken Tamil Voice Query</label>
+            <input type="text" id="f-ivr-query" value="இன்று என்ன பிரச்சனைகள் இருந்தது?">
+          </div>
+          <button type="submit" class="btn-primary" style="background: var(--surface2); color: var(--accent); border: 1px solid var(--accent);"><i class="fa-solid fa-volume-high"></i> SPEAK TO TAMIL IVR QUERY ENGINE</button>
+        </form>
+        <div id="ivr-response-box" style="margin-top: 10px; font-family: var(--font-mono); font-size: 0.82rem; color: var(--green);">
+          IVR Response will render here...
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:8011/agents/notification';
+    let activeAlertId = 'ALT-INIT-01';
+
+    let isFirstLoad = true;
+
+    async function loadActiveAlerts() {
+      try {
+        const res = await fetch(`${API_BASE}/active-alerts`);
+        const alerts = await res.json();
+        if (alerts && alerts.length > 0) {
+          const newAlert = alerts[0];
+          
+          if (activeAlertId !== newAlert.alert_id && !isFirstLoad) {
+            playLoudEmergencyAudio(newAlert.tamil_prompt || 'எச்சரிக்கை! Emergency Critical Alert Triggered.');
+          }
+          
+          renderAlert(newAlert);
+          isFirstLoad = false;
+        }
+      } catch (err) {
+        console.log('API error:', err);
+      }
+    }
+
+    function renderAlert(alert) {
+      activeAlertId = alert.alert_id;
+      document.getElementById('h-alert-id').innerText = alert.alert_id;
+      document.getElementById('m-status').innerText = alert.status;
+      document.getElementById('m-role').innerText = alert.current_role.toUpperCase();
+      document.getElementById('m-channel').innerText = alert.current_channel.toUpperCase();
+      document.getElementById('tamil-audio-text').innerText = `"${alert.tamil_prompt}"`;
+    }
+
+    function playLoudEmergencyAudio(text) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // 880Hz
+        oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.5); // 1760Hz
+        oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 1.0);
+        oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 1.5);
+        gainNode.gain.setValueAtTime(1, audioCtx.currentTime); // Max volume
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 2000); // Siren for 2s
+      } catch (e) {
+        console.error("Audio API error", e);
+      }
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ta-IN';
+        utterance.volume = 1;
+        utterance.rate = 0.9;
+        utterance.pitch = 1.2;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    async function triggerRealPhoneCall() {
+      const promptText = document.getElementById('tamil-audio-text').innerText.replace(/"/g, '');
+      playLoudEmergencyAudio(promptText || 'எச்சரிக்கை! Critical Alert Triggered.');
+      alert('System Alarm & Voice Triggered Locally!');
+    }
+
+    async function acknowledgeAlert() {
+      try {
+        const res = await fetch(`${API_BASE}/acknowledge`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            alert_id: activeAlertId,
+            acknowledged_by: 'Shift Operator (Ext 101 DTMF 1)'
+          })
+        });
+        const data = await res.json();
+        alert(`Alert ${activeAlertId} Acknowledged! Status: ${data.status}`);
+        loadActiveAlerts();
+      } catch (err) {
+        alert('Failed to send acknowledgment: ' + err.message);
+      }
+    }
+
+    function sendDTMF(key) {
+      if (key === '1') {
+        acknowledgeAlert();
+      } else {
+        alert(`DTMF Key ${key} pressed.`);
+      }
+    }
+
+    document.getElementById('trigger-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const source = document.getElementById('f-source').value;
+      const eventType = document.getElementById('f-event').value;
+      const severity = document.getElementById('f-severity').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/trigger-alert`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source_agent: source,
+            event_type: eventType,
+            severity: severity,
+            details: { reading: 9.4, loom_id: 'Loom-04', zone: 'Section B' }
+          })
+        });
+        const data = await res.json();
+        renderAlert(data);
+        if (severity === 'CRITICAL') {
+          playLoudEmergencyAudio(data.tamil_prompt || 'Emergency Critical Alert Triggered.');
+        }
+      } catch (err) {
+        alert('Error triggering alert: ' + err.message);
+      }
+    });
+
+    document.getElementById('ivr-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = document.getElementById('f-ivr-query').value;
+      try {
+        const res = await fetch(`${API_BASE}/inbound-ivr-query`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            caller_extension: 'Ext 101',
+            speech_transcription_tamil: query
+          })
+        });
+        const data = await res.json();
+        document.getElementById('ivr-response-box').innerText = `🔊 TAMIL IVR SPOKEN ANSWER: "${data.spoken_response_tamil}"`;
+      } catch (err) {
+        alert('Error querying IVR: ' + err.message);
+      }
+    });
+
+    loadActiveAlerts();
+    // Poll for new active alerts every 3 seconds to automatically trigger system alarms
+    setInterval(loadActiveAlerts, 3000);
+  </script>
+
+  <!-- Iframe view compatibility script -->
+  <script>
+    if (window.self !== window.top) {
+      const navEl = document.querySelector('nav');
+      if (navEl) {
+        navEl.style.display = 'none';
+      }
+      document.body.style.paddingTop = '0px';
+    }
+  </script>
+
+
+  <!-- ChartJS Color Correction Script -->
+  <script>
+    if (window.Chart) {
+      Chart.defaults.color = '#475569';
+      Chart.defaults.borderColor = 'rgba(15, 23, 42, 0.08)';
+    }
+  </script>
+
+</body>
+</html>

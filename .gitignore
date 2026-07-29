@@ -7,5 +7,20 @@ venv/
 .pytest_cache/
 model_artifacts/
 .DS_Store
+
+# Secrets — never commit
+.env
+.env.*
+
+# Large datasets (keep locally, generate with scripts)
+*.csv
+**/data/
+data/
+datasets/
+training_data/
 10_lakh_dataset.*
 agents/defect/10_lakh_dataset.*
+Fabric Defect Dataset/
+
+# Large PyTorch checkpoints (train locally)
+*.pth

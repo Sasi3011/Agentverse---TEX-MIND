@@ -1,0 +1,123 @@
+/* TEXMIND — Custom brutalist scrollbars (no default OS chrome) */
+:root {
+  --scroll-size: 9px;
+  --scroll-track: #f1f5f9;
+  --scroll-thumb: #2563eb;
+  --scroll-thumb-hover: #1d4ed8;
+  --scroll-border: #0f172a;
+}
+
+/* Firefox */
+html,
+body,
+.panel,
+.feed-list,
+.log-container,
+.incident-log,
+.alert-list,
+.console-log,
+.copilot-chat-body,
+.sidebar-menu,
+#resultsContainer,
+.container,
+.dashboard-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+
+/* WebKit / Chromium / Edge */
+::-webkit-scrollbar {
+  width: var(--scroll-size);
+  height: var(--scroll-size);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+  border-left: 2px solid var(--scroll-border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border: 2px solid var(--scroll-border);
+  border-radius: 0;
+  min-height: 40px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #1e40af;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--scroll-track);
+  border-top: 2px solid var(--scroll-border);
+  border-left: 2px solid var(--scroll-border);
+}
+
+::-webkit-scrollbar-track:horizontal {
+  border-left: none;
+  border-top: 2px solid var(--scroll-border);
+}
+
+.panel::-webkit-scrollbar-track,
+.feed-list::-webkit-scrollbar-track,
+.log-container::-webkit-scrollbar-track,
+.copilot-chat-body::-webkit-scrollbar-track,
+#resultsContainer::-webkit-scrollbar-track {
+  background: #ffffff;
+  border-left: 2px solid var(--scroll-border);
+}
+
+.panel::-webkit-scrollbar-thumb,
+.feed-list::-webkit-scrollbar-thumb,
+.log-container::-webkit-scrollbar-thumb,
+.copilot-chat-body::-webkit-scrollbar-thumb,
+#resultsContainer::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border: 2px solid var(--scroll-border);
+}
+
+.sidebar-menu::-webkit-scrollbar {
+  width: 7px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: transparent;
+  border-left: none;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: var(--accent, #2563eb);
+  border: 2px solid var(--scroll-border);
+}
+
+body.agent-fixed-viewport .panel {
+  scrollbar-color: var(--scroll-thumb) #ffffff;
+}
+
+body.agent-fixed-viewport .panel::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+body.agent-embed::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-left: 3px solid var(--scroll-border);
+}
+
+body.agent-embed::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border: 2px solid var(--scroll-border);
+}
+
+.copilot-quick-pills {
+  scrollbar-width: none;
+}
+
+.copilot-quick-pills::-webkit-scrollbar {
+  height: 0;
+  display: none;
+}

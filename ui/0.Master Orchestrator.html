@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 00 — Master Brain Orchestrator Control Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --accent: #2563eb;
+      --dark: #0f172a;
+      --white: #ffffff;
+      --border: 3px solid var(--dark);
+    }
+
+    body {
+      background: #f8fafc;
+      color: var(--dark);
+      font-family: 'DM Sans', sans-serif;
+      padding: 0;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 1rem; }
+    h2 { font-size: 1.35rem; margin-bottom: 0.65rem; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media(max-width: 900px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: #ffffff;
+      border: var(--border);
+      box-shadow: 3px 3px 0 var(--accent);
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 0;
+    }
+
+    label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    input, select {
+      background: #ffffff;
+      color: var(--dark);
+      border: var(--border);
+      padding: 0.8rem 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      width: 100%;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: var(--border);
+      padding: 0.9rem 1.8rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--dark);
+      transition: all 0.1s;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--dark);
+    }
+
+    /* Pipeline flow visualization */
+    .flow-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .flow-step {
+      flex: 1;
+      min-width: 120px;
+      border: var(--border);
+      background: #ffffff;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 3px 3px 0 var(--dark);
+      position: relative;
+    }
+
+    .flow-step.active {
+      background: rgba(37, 99, 235, 0.08);
+      border-color: var(--accent);
+    }
+
+    .flow-step.passed {
+      background: rgba(34, 197, 94, 0.08);
+      border-color: #22c55e;
+    }
+
+    .flow-step.failed {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: #ef4444;
+    }
+
+    .flow-step-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: rgba(15, 23, 42, 0.4);
+    }
+
+    .flow-step-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      margin-top: 0.2rem;
+    }
+
+    .flow-step-status {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      margin-top: 0.4rem;
+    }
+
+    /* Telemetry grid */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    @media(max-width: 600px) {
+      .telemetry-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .telemetry-box {
+      border: var(--border);
+      padding: 1rem;
+      background: #ffffff;
+      box-shadow: 3px 3px 0 var(--dark);
+    }
+
+    .telemetry-lbl {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.55rem;
+      color: rgba(15, 23, 42, 0.5);
+      text-transform: uppercase;
+    }
+
+    .telemetry-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: var(--accent);
+    }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="agent-shared.css">
+  <script src="agent-embed.js"></script>
+</head>
+<body>
+
+  <div class="dashboard-container agent-page">
+    <div class="panel">
+      <h2 class="panel-title">Batch Processing Execution Flow</h2>
+    <div class="flow-container">
+      <div class="flow-step" id="step-intake">
+        <div class="flow-step-num">01</div>
+        <div class="flow-step-name">Intake Gate</div>
+        <div class="flow-step-status" id="status-intake">PENDING</div>
+      </div>
+      <div class="flow-step" id="step-defect">
+        <div class="flow-step-num">02</div>
+        <div class="flow-step-name">Defect Detection</div>
+        <div class="flow-step-status" id="status-defect">PENDING</div>
+      </div>
+      <div class="flow-step" id="step-dyeing">
+        <div class="flow-step-num">03</div>
+        <div class="flow-step-name">Dye Recipe</div>
+        <div class="flow-step-status" id="status-dyeing">PENDING</div>
+      </div>
+      <div class="flow-step" id="step-trace">
+        <div class="flow-step-num">04</div>
+        <div class="flow-step-name">Traceability</div>
+        <div class="flow-step-status" id="status-trace">PENDING</div>
+      </div>
+      <div class="flow-step" id="step-esg">
+        <div class="flow-step-num">05</div>
+        <div class="flow-step-name">ESG Report</div>
+        <div class="flow-step-status" id="status-esg">PENDING</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Trigger Batch form -->
+    <div class="panel">
+      <h2>Trigger Fabric Batch Pipeline</h2>
+      <div id="api-status" style="margin: 0.75rem 0 0; padding: 0.65rem 0.85rem; border: 2px solid #f59e0b; background: #fffbeb; font-family: 'Space Mono', monospace; font-size: 0.72rem; color: #92400e;">
+        Checking orchestrator on port 8020...
+      </div>
+      <form id="batch-form" style="margin-top: 1rem;">
+        <label for="batch_id">Batch ID</label>
+        <input type="text" id="batch_id" value="B-2026-LIVE-77" required>
+
+        <label for="supplier_id">Supplier ID</label>
+        <input type="text" id="supplier_id" value="SUP-03" required>
+
+        <label for="fiber_count">Fiber Count (Ne)</label>
+        <input type="number" id="fiber_count" value="40" required>
+
+        <label for="tensile_strength">Tensile Strength (g/tex)</label>
+        <input type="number" step="0.1" id="tensile_strength" value="22.5" required>
+
+        <label for="moisture_pct">Moisture Percentage (%)</label>
+        <input type="number" step="0.1" id="moisture_pct" value="7.2" required>
+
+        <label for="target_shade">Target Shade Code</label>
+        <input type="text" id="target_shade" value="NAVY-BLUE-12" required>
+
+        <label for="fabric_type">Fabric Type</label>
+        <select id="fabric_type">
+          <option value="cotton_poplin">Cotton Poplin</option>
+          <option value="nylon_taffeta">Nylon Taffeta</option>
+          <option value="polyester_sateen">Polyester Sateen</option>
+        </select>
+
+        <button type="submit" class="btn"><i class="fa-solid fa-play"></i> Trigger Pipeline</button>
+      </form>
+    </div>
+
+    <!-- Background Monitors Telemetry -->
+    <div class="panel">
+      <h2>Always-On Monitor Snapshots</h2>
+      
+      <h3 style="margin-top:1.25rem;">Effluent Compliance (Agent 04)</h3>
+      <div class="telemetry-grid">
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">pH Level</div>
+          <div class="telemetry-val" id="etp-ph">7.4</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Turbidity</div>
+          <div class="telemetry-val" id="etp-turb">12 NTU</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">COD</div>
+          <div class="telemetry-val" id="etp-cod">45 mg/L</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Temp</div>
+          <div class="telemetry-val" id="etp-temp">28°C</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1.5rem;">Energy Optimization (Agent 05)</h3>
+      <div class="telemetry-grid">
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Current Load</div>
+          <div class="telemetry-val" id="energy-load">120 kW</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Anomaly</div>
+          <div class="telemetry-val" id="energy-anomaly" style="color:#22c55e">NONE</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Peak Status</div>
+          <div class="telemetry-val" id="energy-tariff">NORMAL</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Power Factor</div>
+          <div class="telemetry-val">0.96</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1.5rem;">Worker Safety (Agent 07)</h3>
+      <div class="telemetry-grid">
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">PPE Alerts</div>
+          <div class="telemetry-val" id="safety-violations" style="color:#22c55e">0</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Loom Interlocks</div>
+          <div class="telemetry-val">ACTIVE</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Zone Uptime</div>
+          <div class="telemetry-val">100%</div>
+        </div>
+        <div class="telemetry-box">
+          <div class="telemetry-lbl">Active Guards</div>
+          <div class="telemetry-val">ON</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: 1.25rem;">
+    <h2 class="panel-title">Pipeline History Log</h2>
+    <table id="history-table">
+      <thead>
+        <tr>
+          <th>Batch ID</th>
+          <th>Intake decision</th>
+          <th>Loom Defect</th>
+          <th>Dye Recipe</th>
+          <th>ESG Grade</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>B-DEFAULT-01</td>
+          <td>APPROVED</td>
+          <td>DEFECT FREE</td>
+          <td>NAVY-RECIPE-9</td>
+          <td>A+ Grade</td>
+          <td style="color:#22c55e; font-weight:bold;">SUCCESS</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8020";
+    let orchestratorOnline = false;
+
+    function setApiStatus(online, message) {
+      orchestratorOnline = online;
+      const el = document.getElementById("api-status");
+      if (!el) return;
+      el.style.borderColor = online ? "#22c55e" : "#ef4444";
+      el.style.background = online ? "#f0fdf4" : "#fef2f2";
+      el.style.color = online ? "#166534" : "#991b1b";
+      el.textContent = message;
+    }
+
+    async function checkOrchestratorHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/orchestrator/health`, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setApiStatus(true, "Orchestrator API online on port 8020");
+        return true;
+      } catch (err) {
+        setApiStatus(false, "Orchestrator offline on port 8020 — run .\\run_all.ps1 or start Agent 00 manually");
+        return false;
+      }
+    }
+
+    function intakePassed(result) {
+      const decision = (result?.decision || "").toLowerCase();
+      return decision === "pass" || decision === "approved";
+    }
+
+    function defectPassed(result) {
+      const decision = (result?.decision || "").toLowerCase();
+      return decision === "continue" || decision === "defect_free" || decision === "pass";
+    }
+
+    // Poll background state from orchestrator
+    async function pollState() {
+      try {
+        const res = await fetch(`${API_BASE}/orchestrator/history`, { cache: "no-store" });
+        if (res.ok) {
+          orchestratorOnline = true;
+          const history = await res.json();
+          updateHistoryTable(history);
+          setApiStatus(true, "Orchestrator API online on port 8020");
+        }
+      } catch (err) {
+        setApiStatus(false, "Orchestrator offline on port 8020 — run .\\run_all.ps1 or start Agent 00 manually");
+      }
+    }
+
+    function updateHistoryTable(history) {
+      const tbody = document.querySelector("#history-table tbody");
+      tbody.innerHTML = "";
+      history.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.batch_id}</td>
+          <td>${item.intake_result ? item.intake_result.decision : 'N/A'}</td>
+          <td>${item.defect_result ? item.defect_result.decision : 'N/A'}</td>
+          <td>${item.dye_recipe ? item.dye_recipe.recommended_recipe : 'N/A'}</td>
+          <td>${item.sustainability_report ? item.sustainability_report.esg_grade : 'N/A'}</td>
+          <td style="color:${item.status === 'COMPLETED' ? '#22c55e' : '#ef4444'}; font-weight:bold;">${item.status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Trigger pipeline execution
+    document.getElementById("batch-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const payload = {
+        batch_id: document.getElementById("batch_id").value,
+        supplier_id: document.getElementById("supplier_id").value,
+        fiber_count: parseInt(document.getElementById("fiber_count").value),
+        tensile_strength_g_tex: parseFloat(document.getElementById("tensile_strength").value),
+        moisture_pct: parseFloat(document.getElementById("moisture_pct").value),
+        target_shade_code: document.getElementById("target_shade").value,
+        fabric_type: document.getElementById("fabric_type").value
+      };
+
+      // Reset step visuals
+      document.querySelectorAll(".flow-step").forEach(el => {
+        el.className = "flow-step";
+        el.querySelector(".flow-step-status").innerText = "PENDING";
+      });
+
+      try {
+        if (!orchestratorOnline) {
+          const ok = await checkOrchestratorHealth();
+          if (!ok) {
+            alert("Orchestrator is not running on port 8020.\n\nFrom the project folder run:\n.\\run_all.ps1\n\nOr start only the orchestrator:\ncd agents\\0.Master Orchestrator\npython -m uvicorn main:app --host 127.0.0.1 --port 8020");
+            return;
+          }
+        }
+
+        const res = await fetch(`${API_BASE}/orchestrator/trigger-batch`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          animatePipelineExecution(result);
+        } else {
+          let detail = `HTTP ${res.status}`;
+          try {
+            const errBody = await res.json();
+            detail = errBody.detail || detail;
+          } catch (_) {}
+          alert(`Pipeline execution failed: ${detail}`);
+        }
+      } catch (err) {
+        alert("Failed to connect to Orchestrator API (port 8020).\n\nStart it with .\\run_all.ps1 from the project root.");
+      }
+    });
+
+    function animatePipelineExecution(res) {
+      setTimeout(() => {
+        const intakeStep = document.getElementById("step-intake");
+        const intakeStatus = document.getElementById("status-intake");
+        if (intakePassed(res.intake_result)) {
+          intakeStep.className = "flow-step passed";
+          intakeStatus.innerText = "PASSED";
+        } else {
+          intakeStep.className = "flow-step failed";
+          intakeStatus.innerText = "REJECTED";
+          return;
+        }
+
+        setTimeout(() => {
+          const defectStep = document.getElementById("step-defect");
+          const defectStatus = document.getElementById("status-defect");
+          if (defectPassed(res.defect_result)) {
+            defectStep.className = "flow-step passed";
+            defectStatus.innerText = "PASSED";
+          } else if ((res.defect_result?.decision || "").toLowerCase() === "flag") {
+            defectStep.className = "flow-step";
+            defectStatus.innerText = "FLAGGED";
+          } else {
+            defectStep.className = "flow-step failed";
+            defectStatus.innerText = "HALTED";
+            return;
+          }
+
+          setTimeout(() => {
+            const dyeingStep = document.getElementById("step-dyeing");
+            const dyeingStatus = document.getElementById("status-dyeing");
+            if (res.dye_recipe) {
+              dyeingStep.className = "flow-step passed";
+              dyeingStatus.innerText = "COMPLETED";
+            } else {
+              dyeingStep.className = "flow-step failed";
+              dyeingStatus.innerText = "FAILED";
+              return;
+            }
+
+            setTimeout(() => {
+              const traceStep = document.getElementById("step-trace");
+              const traceStatus = document.getElementById("status-trace");
+              if (res.traceability_record) {
+                traceStep.className = "flow-step passed";
+                traceStatus.innerText = "VERIFIED";
+              }
+
+              setTimeout(() => {
+                const esgStep = document.getElementById("step-esg");
+                const esgStatus = document.getElementById("status-esg");
+                if (res.sustainability_report) {
+                  esgStep.className = "flow-step passed";
+                  esgStatus.innerText = "COMPILED";
+                }
+                pollState();
+              }, 600);
+            }, 600);
+          }, 600);
+        }, 600);
+      }, 600);
+    }
+
+    // Initial poll & interval
+    checkOrchestratorHealth();
+    pollState();
+    setInterval(pollState, 4000);
+  </script>
+
+  <!-- ChartJS Color Correction Script -->
+  <script>
+    if (window.Chart) {
+      Chart.defaults.color = '#475569';
+      Chart.defaults.borderColor = 'rgba(15, 23, 42, 0.08)';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-pydantic
-pandas
-scikit-learn
-sqlalchemy
-psycopg2-binary
-pytest
-httpx

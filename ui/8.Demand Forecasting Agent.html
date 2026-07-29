@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 08: Demand Forecasting | TEXMIND</title>
+  <meta name="description" content="TEXMIND Agent 8 — AI-powered demand forecasting for textile mills. Predict weekly order volumes, plan production capacity, and blend confirmed orders with Prophet forecasts.">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:ital,wght@0,400;0,600;0,900;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────────────────── */
+    :root {
+      --bg:            #f8fafc;
+      --surface:       #ffffff;
+      --surface2:      #f1f5f9;
+      --border:        #e2e8f0;
+      --border-bright: #cbd5e1;
+      --accent:        #f97316;
+      --accent-dim:    rgba(249,115,22,0.12);
+      --accent-glow:   rgba(249,115,22,0.35);
+      --green:         #22c55e;
+      --green-dim:     rgba(34,197,94,0.12);
+      --red:           #ef4444;
+      --red-dim:       rgba(239,68,68,0.12);
+      --yellow:        #eab308;
+      --yellow-dim:    rgba(234,179,8,0.12);
+      --blue:          #3b82f6;
+      --blue-dim:      rgba(59,130,246,0.12);
+      --text:          #0f172a;
+      --text-muted:    #64748b;
+      --text-dim:      #94a3b8;
+      --font-mono:     'Space Mono', monospace;
+      --font-sans:     'Inter', sans-serif;
+      --font-display:  'Bebas Neue', sans-serif;
+      --radius:        2px;
+      --transition:    0.2s ease;
+    }
+
+    /* ── Reset ──────────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-top: 0px;
+}
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.04; mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── Navigation ─────────────────────────────────────────────────────────── */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 3px;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--border);
+    }
+    .nav-breadcrumb strong { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      transition: color var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-agent-badge {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 0.3rem 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ── Hero Banner ────────────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0f0d0b 0%, #1a1008 50%, #0a0a0a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '08';
+      position: absolute;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-display);
+      font-size: 12rem;
+      color: rgba(249,115,22,0.04);
+      pointer-events: none;
+      line-height: 1;
+    }
+    .hero-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    .hero-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      letter-spacing: 2px;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }
+    .hero-title span { color: var(--accent); }
+    .hero-sub {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 500px;
+      line-height: 1.6;
+    }
+    .hero-status-row {
+      display: flex;
+      gap: 2rem;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat-value {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      color: var(--accent);
+      display: block;
+    }
+    .hero-stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Status Bar ─────────────────────────────────────────────────────────── */
+    .status-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      overflow-x: auto;
+    }
+    .status-item { display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; }
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse-green 2s infinite;
+    }
+    .status-dot.yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+    .status-dot.red    { background: var(--red);    box-shadow: 0 0 6px var(--red); }
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
+
+    /* ── Main Layout ────────────────────────────────────────────────────────── */
+    .dashboard-container {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    @media (max-width: 1100px) {
+      .dashboard-container { grid-template-columns: 1fr; }
+    }
+
+    /* ── Left Sidebar ───────────────────────────────────────────────────────── */
+    .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* ── Cards ──────────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: transparent;
+      transition: background var(--transition);
+    }
+    .card.active-accent::before { background: var(--accent); }
+    .card-header {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-header-icon { color: var(--accent); }
+
+    /* ── Form Controls ──────────────────────────────────────────────────────── */
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    select, input[type="text"], input[type="number"] {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      padding: 0.55rem 0.75rem;
+      outline: none;
+      transition: border-color var(--transition);
+      appearance: none;
+      width: 100%;
+    }
+    select:focus, input:focus {
+      border-color: var(--accent);
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2rem;
+    }
+
+    /* Slider */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      background: var(--border);
+      height: 4px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+    .slider-value {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: var(--accent);
+      min-width: 2ch;
+      text-align: right;
+    }
+
+    /* ── Buttons ────────────────────────────────────────────────────────────── */
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.8rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all var(--transition);
+      width: 100%;
+    }
+    .btn-primary:hover { background: #ea6d0f; box-shadow: 0 0 20px var(--accent-glow); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.6rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all var(--transition);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-sm {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.4rem 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-sm:hover { background: #ea6d0f; }
+    .btn-sm.danger { background: var(--red); color: #fff; }
+    .btn-sm.danger:hover { background: #c53030; }
+
+    /* ── KPI Row ────────────────────────────────────────────────────────────── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+    }
+    .kpi-card.green::after  { background: var(--green); }
+    .kpi-card.blue::after   { background: var(--blue); }
+    .kpi-card.yellow::after { background: var(--yellow); }
+    .kpi-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.5rem;
+    }
+    .kpi-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      line-height: 1;
+      color: var(--text);
+    }
+    .kpi-sub {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    /* ── Chart Container ────────────────────────────────────────────────────── */
+    .chart-wrap {
+      position: relative;
+      height: 320px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 1rem;
+    }
+
+    /* ── Forecast Table ─────────────────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+    thead th {
+      background: var(--surface2);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.65rem;
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid #1a1a1a;
+      transition: background var(--transition);
+    }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td {
+      padding: 0.6rem 0.9rem;
+      vertical-align: middle;
+    }
+    .td-week { color: var(--text-muted); }
+    .td-forecast { color: var(--text); font-weight: 700; }
+    .td-confirmed { color: var(--accent); font-weight: 700; }
+    .td-effective { color: var(--green); font-weight: 700; }
+
+    /* Source badge */
+    .src-badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+      font-size: 0.6rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .src-prophet   { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+    .src-confirmed { background: var(--green-dim);  color: var(--green);  border: 1px solid var(--green); }
+    .src-fallback  { background: var(--yellow-dim); color: var(--yellow); border: 1px solid var(--yellow); }
+
+    /* ── Log Stream ─────────────────────────────────────────────────────────── */
+    .log-container {
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .log-container::-webkit-scrollbar { width: 4px; }
+    .log-container::-webkit-scrollbar-thumb { background: var(--border-bright); }
+    .log-entry {
+      padding: 0.4rem 0.6rem;
+      border-left: 2px solid var(--border);
+      background: #ffffff;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .log-entry.info    { border-left-color: var(--blue); }
+    .log-entry.success { border-left-color: var(--green); }
+    .log-entry.warning { border-left-color: var(--yellow); }
+    .log-entry.error   { border-left-color: var(--red); }
+    .log-time { color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
+    .log-msg  { color: var(--text-muted); }
+
+    /* ── Confirmed Orders List ──────────────────────────────────────────────── */
+    .confirmed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .confirmed-list::-webkit-scrollbar { width: 4px; }
+    .confirmed-list::-webkit-scrollbar-thumb { background: var(--border-bright); }
+    .confirmed-item {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .confirmed-item-left { display: flex; flex-direction: column; gap: 0.2rem; }
+    .confirmed-item-week { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); }
+    .confirmed-item-detail { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); }
+
+    /* ── Empty State ────────────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+    .empty-state i {
+      font-size: 2.5rem;
+      color: var(--text-dim);
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Loading overlay ────────────────────────────────────────────────────── */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10,10,10,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 10;
+      backdrop-filter: blur(3px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition);
+    }
+    .loading-overlay.visible { opacity: 1; pointer-events: all; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+
+    /* ── Scrollbar global ───────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-bright); }
+
+    /* ── Footer ─────────────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      background: var(--surface);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+    footer span { color: var(--accent); }
+
+    /* ── Animations ─────────────────────────────────────────────────────────── */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeSlideIn 0.3s ease forwards; }
+
+    /* ── Divider ─────────────────────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.5rem 0;
+    }
+  
+    /* NAV (Added dynamically) */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #ffffff;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: #0f172a;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: #3b82f6;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links li {
+      display: flex;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #475569;
+      padding: 0 0.8rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      background: #3b82f6;
+      color: #0f172a;
+    }
+
+  
+    .btn, .btn-primary {
+      color: #ffffff !important;
+    }
+    .btn:hover, .btn-primary:hover {
+      color: #ffffff !important;
+    }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="agent-shared.css">
+  <script src="agent-embed.js"></script>
+</head>
+
+<body>
+
+<!-- ── Navigation ────────────────────────────────────────────────────────────── -->
+
+
+<!-- ── Hero ──────────────────────────────────────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-label">⬡ Texmind Cognitive Suite</div>
+      <h1 class="hero-title">DEMAND <span>FORECAST</span></h1>
+      <p class="hero-sub">Facebook Prophet time-series forecasting for textile order volumes. Blends statistical predictions with confirmed orders for production planning.</p>
+    </div>
+    <div class="hero-status-row">
+      <div class="hero-stat">
+        <span class="hero-stat-value" id="hero-models">20</span>
+        <span class="hero-stat-label">Models Trained</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value" id="hero-products">20</span>
+        <span class="hero-stat-label">Product Types</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-value">1M</span>
+        <span class="hero-stat-label">Training Rows</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Status Bar ────────────────────────────────────────────────────────────── -->
+<div class="status-bar">
+  <div class="status-item">
+    <div class="status-dot" id="api-dot"></div>
+    <span id="api-status-text">Connecting to API…</span>
+  </div>
+  <div class="status-item">
+    <i class="fa fa-microchip" style="color:var(--accent)"></i>
+    <span>Model: <strong id="model-ver">Prophet v1</strong></span>
+  </div>
+  <div class="status-item">
+    <i class="fa fa-calendar" style="color:var(--text-dim)"></i>
+    <span>Last Trained: <strong id="trained-at">–</strong></span>
+  </div>
+  <div class="status-item">
+    <i class="fa fa-bullseye" style="color:var(--yellow)"></i>
+    <span>API: <strong>localhost:8008</strong></span>
+  </div>
+  <div class="status-item" style="margin-left:auto">
+    <span id="clock" style="color:var(--text-dim)"></span>
+  </div>
+</div>
+
+<!-- ── Dashboard Grid ─────────────────────────────────────────────────────────── -->
+<div class="dashboard-container">
+
+  <!-- ── LEFT SIDEBAR ───────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <!-- Control Panel -->
+    <div class="card active-accent">
+      <div class="card-header">
+        <span><i class="fa fa-sliders card-header-icon"></i> &nbsp;Forecast Controls</span>
+        <span id="model-status-badge" style="font-size:0.65rem; color:var(--green)">● READY</span>
+      </div>
+
+      <div class="form-group">
+        <label for="product-select">Product Type</label>
+        <select id="product-select" onchange="runForecast()">
+          <optgroup label="Cotton Variants">
+            <option value="cotton_poplin_navy">Cotton Poplin — Navy</option>
+            <option value="cotton_poplin_white">Cotton Poplin — White</option>
+            <option value="cotton_twill_khaki">Cotton Twill — Khaki</option>
+            <option value="cotton_twill_black">Cotton Twill — Black</option>
+            <option value="cotton_canvas_olive">Cotton Canvas — Olive</option>
+            <option value="cotton_jersey_grey">Cotton Jersey — Grey</option>
+            <option value="cotton_fleece_navy">Cotton Fleece — Navy</option>
+          </optgroup>
+          <optgroup label="Polyester Variants">
+            <option value="polyester_satin_ivory">Polyester Satin — Ivory</option>
+            <option value="polyester_georgette_blue">Polyester Georgette — Blue</option>
+            <option value="polyester_crepe_black">Polyester Crepe — Black</option>
+            <option value="polyester_satin_red">Polyester Satin — Red</option>
+          </optgroup>
+          <optgroup label="Blend Variants">
+            <option value="poly_cotton_white">Poly-Cotton — White</option>
+            <option value="poly_cotton_navy">Poly-Cotton — Navy</option>
+            <option value="linen_cotton_beige">Linen-Cotton — Beige</option>
+            <option value="linen_cotton_khaki">Linen-Cotton — Khaki</option>
+            <option value="viscose_blend_burgundy">Viscose Blend — Burgundy</option>
+            <option value="viscose_blend_teal">Viscose Blend — Teal</option>
+          </optgroup>
+          <optgroup label="Premium Blends">
+            <option value="modal_cotton_grey">Modal-Cotton — Grey</option>
+            <option value="bamboo_cotton_white">Bamboo-Cotton — White</option>
+            <option value="tencel_blend_olive">Tencel Blend — Olive</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Forecast Horizon</label>
+        <div class="slider-row">
+          <input type="range" id="horizon-slider" min="1" max="12" value="4" step="1" onchange="runForecast()">
+          <span class="slider-value" id="horizon-display">4</span>
+        </div>
+        <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim)">weeks ahead</span>
+      </div>
+
+      <button class="btn-primary" id="run-forecast-btn" onclick="runForecast()">
+        <i class="fa fa-chart-line"></i> Run Forecast
+      </button>
+    </div>
+
+    <!-- Confirmed Orders -->
+    <div class="card">
+      <div class="card-header">
+        <span><i class="fa fa-check-circle card-header-icon"></i> &nbsp;Confirmed Orders</span>
+        <span id="confirmed-count" style="color:var(--accent);font-size:0.75rem">0</span>
+      </div>
+
+      <div class="form-group">
+        <label for="co-week">Target Week</label>
+        <select id="co-week">
+          <option value="">Run forecast to load weeks...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="co-buyer">Buyer Name</label>
+        <input type="text" id="co-buyer" placeholder="e.g. Export House UK">
+      </div>
+      <div class="form-group">
+        <label for="co-qty">Quantity (metres)</label>
+        <input type="number" id="co-qty" placeholder="e.g. 5000" min="1">
+      </div>
+      <button class="btn-sm" onclick="addConfirmedOrder()" style="width:100%;justify-content:center;padding:0.6rem">
+        <i class="fa fa-plus"></i> Add Confirmed Order
+      </button>
+
+      <div class="divider"></div>
+
+      <div class="confirmed-list" id="confirmed-list">
+        <div class="empty-state" style="padding:1rem">
+          <i class="fa fa-inbox" style="font-size:1.5rem"></i>
+          No confirmed orders yet.
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card">
+      <div class="card-header">
+        <span><i class="fa fa-terminal card-header-icon"></i> &nbsp;Activity Log</span>
+        <button class="btn-outline" style="padding:0.2rem 0.5rem;font-size:0.65rem" onclick="clearLog()">Clear</button>
+      </div>
+      <div class="log-container" id="log-container"></div>
+    </div>
+
+  </aside>
+
+  <!-- ── MAIN PANEL ──────────────────────────────────────────────────────── -->
+  <main>
+    <!-- KPI Row -->
+    <div class="kpi-row" id="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Recommended Output / Week</div>
+        <div class="kpi-value" id="kpi-recommended">–</div>
+        <div class="kpi-sub">metres of fabric</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Avg Predicted Qty</div>
+        <div class="kpi-value" id="kpi-avg-pred">–</div>
+        <div class="kpi-sub">metres / week</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label">Confidence Interval</div>
+        <div class="kpi-value" id="kpi-ci" style="font-size:1.4rem">–</div>
+        <div class="kpi-sub">80% interval (m)</div>
+      </div>
+      <div class="kpi-card yellow">
+        <div class="kpi-label">Backtest MAPE</div>
+        <div class="kpi-value" id="kpi-mape">–</div>
+        <div class="kpi-sub">mean abs. % error</div>
+      </div>
+    </div>
+
+    <!-- Forecast Chart -->
+    <div class="card" style="margin-bottom:1rem;position:relative">
+      <div class="card-header">
+        <span><i class="fa fa-chart-area card-header-icon"></i> &nbsp;Weekly Demand Forecast</span>
+        <span id="chart-subtitle" style="font-size:0.65rem;color:var(--text-dim)">Select a product and run forecast</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="forecast-chart"></canvas>
+      </div>
+      <!-- Legend -->
+      <div style="display:flex;gap:1.5rem;font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted)">
+        <span><span style="display:inline-block;width:12px;height:3px;background:var(--accent);vertical-align:middle;margin-right:4px"></span>Prophet Forecast</span>
+        <span><span style="display:inline-block;width:12px;height:3px;background:rgba(249,115,22,0.25);vertical-align:middle;margin-right:4px"></span>80% Confidence Band</span>
+        <span><span style="display:inline-block;width:12px;height:10px;background:var(--green);vertical-align:middle;margin-right:4px"></span>Confirmed Orders</span>
+      </div>
+      <div class="loading-overlay" id="chart-loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Running Prophet Forecast…</div>
+      </div>
+    </div>
+
+    <!-- Forecast Table -->
+    <div class="card" style="position:relative">
+      <div class="card-header">
+        <span><i class="fa fa-table card-header-icon"></i> &nbsp;Week-by-Week Breakdown</span>
+        <div style="display:flex;gap:0.5rem">
+          <button class="btn-outline" onclick="exportCSV()" style="padding:0.25rem 0.6rem;font-size:0.65rem">
+            <i class="fa fa-download"></i> Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div id="table-empty" class="empty-state">
+        <i class="fa fa-chart-line"></i>
+        Run a forecast to see the week-by-week breakdown
+      </div>
+
+      <div class="table-wrap" id="table-wrap" style="display:none">
+        <table id="forecast-table">
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Forecast (m)</th>
+              <th>CI Lower</th>
+              <th>CI Upper</th>
+              <th>Confirmed (m)</th>
+              <th>Effective (m)</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody id="forecast-tbody"></tbody>
+        </table>
+      </div>
+      <div class="loading-overlay" id="table-loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Building Table…</div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────────────── -->
+<footer>
+  <span>TEXMIND <span>Agent 08</span> — Demand Forecasting</span>
+  <span>Facebook Prophet · FastAPI · SQLite · Port <span>8008</span></span>
+  <span>© 2026 TEXMIND Cognitive Suite</span>
+</footer>
+
+<!-- ── Scripts ──────────────────────────────────────────────────────────────── -->
+<script>
+  /* ── State & Config ─────────────────────────────────────────────────────── */
+  const API_BASE = 'http://localhost:8008';
+  let forecastChart = null;
+  let lastForecastData = null;
+  let currentProduct = null;
+  let isApiOnline = false;
+
+  // In-memory demo orders array for real-time offline sync
+  let demoOrders = [];
+
+  function initDemoOrders(forecastWeeks, productType) {
+    if (demoOrders.length === 0 && forecastWeeks.length >= 6) {
+      demoOrders = [
+        {
+          id: 101,
+          product_type: productType,
+          week_label: forecastWeeks[2].week,
+          buyer: 'Export House UK',
+          quantity_m: Math.round(forecastWeeks[2].predicted_qty_m * 1.25),
+          is_active: true
+        },
+        {
+          id: 102,
+          product_type: productType,
+          week_label: forecastWeeks[5].week,
+          buyer: 'Vogue Textiles EU',
+          quantity_m: Math.round(forecastWeeks[5].predicted_qty_m * 0.85),
+          is_active: true
+        }
+      ];
+    }
+  }
+
+  /* ── Clock ────────────────────────────────────────────────────────────── */
+  function updateClock() {
+    document.getElementById('clock').textContent =
+      new Date().toLocaleTimeString('en-IN', { hour12: false });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  /* ── Slider ───────────────────────────────────────────────────────────── */
+  document.getElementById('horizon-slider').addEventListener('input', function() {
+    document.getElementById('horizon-display').textContent = this.value;
+  });
+
+  /* ── Logger ───────────────────────────────────────────────────────────── */
+  function addLog(msg, type = 'info') {
+    const c = document.getElementById('log-container');
+    const now = new Date().toLocaleTimeString('en-IN', { hour12: false });
+    const el = document.createElement('div');
+    el.className = `log-entry ${type} animate-in`;
+    el.innerHTML = `<span class="log-time">${now}</span><span class="log-msg">${msg}</span>`;
+    c.prepend(el);
+    while (c.children.length > 50) c.removeChild(c.lastChild);
+  }
+  function clearLog() {
+    document.getElementById('log-container').innerHTML = '';
+    addLog('Log cleared.', 'info');
+  }
+
+  /* ── API Health Check ─────────────────────────────────────────────────── */
+  async function checkHealth() {
+    try {
+      const r = await fetch(`${API_BASE}/agents/demand/health`, { signal: AbortSignal.timeout(3000) });
+      const data = await r.json();
+
+      isApiOnline = true;
+      document.getElementById('api-dot').className = 'status-dot';
+      document.getElementById('api-status-text').textContent = `API Online — ${data.models_trained}/${data.total_product_types} models ready`;
+      document.getElementById('hero-models').textContent = data.models_trained ?? '–';
+      document.getElementById('model-ver').textContent = data.model_version ?? 'unknown';
+      document.getElementById('trained-at').textContent = data.trained_at
+        ? new Date(data.trained_at).toLocaleDateString('en-IN')
+        : 'Not trained';
+      document.getElementById('model-status-badge').textContent = data.models_trained > 0 ? '● READY' : '● NO MODELS';
+      document.getElementById('model-status-badge').style.color = data.models_trained > 0 ? 'var(--green)' : 'var(--red)';
+    } catch (e) {
+      isApiOnline = false;
+      document.getElementById('api-dot').className = 'status-dot red';
+      document.getElementById('api-status-text').textContent = 'API Offline — Live Interactive Demo Active';
+      document.getElementById('model-status-badge').textContent = '● DEMO MODE';
+      document.getElementById('model-status-badge').style.color = 'var(--yellow)';
+    }
+  }
+
+  /* ── Demo data (when API is offline) ─────────────────────────────────── */
+  function loadDemoData() {
+    const productType = document.getElementById('product-select').value;
+    const horizon     = parseInt(document.getElementById('horizon-slider').value);
+    const weeks = [];
+    const now = new Date();
+    const daysToMon = (8 - now.getDay()) % 7 || 7;
+    let d = new Date(now.getTime() + daysToMon * 86400000);
+
+    const BASE = 4200;
+    for (let i = 0; i < horizon; i++) {
+      const iso = getISOWeekLabel(d);
+      const seasonal = 1 + 0.12 * Math.sin(i / 2);
+      const predicted = Math.round((BASE * seasonal + (Math.sin(i * 1.5) * 350)) / 50) * 50;
+
+      weeks.push({
+        week: iso,
+        predicted_qty_m: predicted,
+        ci_lower: Math.round(predicted - 550),
+        ci_upper: Math.round(predicted + 550),
+        confirmed_qty_m: null,
+        effective_qty_m: predicted,
+        source: 'prophet'
+      });
+      d = new Date(d.getTime() + 7 * 86400000);
+    }
+
+    // Initialize demo orders on first run
+    initDemoOrders(weeks, productType);
+
+    // Apply active demo orders to matching weeks
+    demoOrders.forEach(o => {
+      if (o.product_type === productType && o.is_active) {
+        const target = weeks.find(w => w.week === o.week_label);
+        if (target) {
+          target.confirmed_qty_m = o.quantity_m;
+          target.effective_qty_m = o.quantity_m;
+          target.source = 'confirmed_override';
+        }
+      }
+    });
+
+    const fakeResult = {
+      product_type: productType,
+      forecast: weeks,
+      confidence_interval: [weeks[0].ci_lower, weeks[0].ci_upper],
+      recommended_production_plan_m_per_week: BASE,
+      model_used: 'Prophet v1 (Demo)',
+      mape: 7.3,
+    };
+
+    lastForecastData = fakeResult;
+    renderForecast(fakeResult);
+    addLog(`Demo forecast generated: ${productType} × ${horizon} weeks`, 'info');
+  }
+
+  function getISOWeekLabel(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+  }
+
+  /* ── Run Forecast ──────────────────────────────────────────────────────── */
+  async function runForecast() {
+    const productType = document.getElementById('product-select').value;
+    const horizon     = parseInt(document.getElementById('horizon-slider').value);
+    const btn         = document.getElementById('run-forecast-btn');
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;margin-right:8px"></div> Forecasting…';
+    showLoading(true);
+    currentProduct = productType;
+
+    await checkHealth();
+
+    if (!isApiOnline) {
+      setTimeout(() => {
+        loadDemoData();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-chart-line"></i> Run Forecast';
+        showLoading(false);
+      }, 250);
+      return;
+    }
+
+    try {
+      const r = await fetch(`${API_BASE}/agents/demand/forecast`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_type: productType, forecast_horizon_weeks: horizon }),
+        signal: AbortSignal.timeout(60000),
+      });
+
+      if (!r.ok) {
+        const err = await r.json();
+        throw new Error(err.detail || `HTTP ${r.status}`);
+      }
+
+      const data = await r.json();
+      lastForecastData = data;
+      renderForecast(data);
+      addLog(`Forecast updated: ${data.model_used}`, 'success');
+    } catch (e) {
+      addLog(`API error — switching to demo mode: ${e.message}`, 'warning');
+      loadDemoData();
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa fa-chart-line"></i> Run Forecast';
+      showLoading(false);
+    }
+  }
+
+  function showLoading(visible) {
+    document.getElementById('chart-loading').className = 'loading-overlay' + (visible ? ' visible' : '');
+    document.getElementById('table-loading').className = 'loading-overlay' + (visible ? ' visible' : '');
+  }
+
+  /* ── Render Forecast ──────────────────────────────────────────────────── */
+  function renderForecast(data) {
+    // Recalculate KPI recommended output based on effective plan
+    const effectiveTotal = data.forecast.reduce((s, w) => s + (w.effective_qty_m ?? w.predicted_qty_m), 0);
+    const avgEffective = Math.round(effectiveTotal / data.forecast.length);
+
+    document.getElementById('kpi-recommended').textContent = avgEffective.toLocaleString();
+    const avgPred = Math.round(data.forecast.reduce((s, w) => s + w.predicted_qty_m, 0) / data.forecast.length);
+    document.getElementById('kpi-avg-pred').textContent = avgPred.toLocaleString();
+    document.getElementById('kpi-ci').textContent =
+      `${(data.confidence_interval[0] ?? 0).toLocaleString()} – ${(data.confidence_interval[1] ?? 0).toLocaleString()}`;
+    document.getElementById('kpi-mape').textContent =
+      data.mape != null ? `${data.mape.toFixed(1)}%` : 'N/A';
+
+    document.getElementById('chart-subtitle').textContent =
+      `${data.product_type.replaceAll('_', ' ').toUpperCase()} · ${data.model_used}`;
+
+    renderChart(data.forecast);
+    renderTable(data.forecast);
+    populateWeekDropdown(data.forecast);
+    loadConfirmedOrders();
+  }
+
+  /* ── Chart ────────────────────────────────────────────────────────────── */
+  function renderChart(forecast) {
+    const labels       = forecast.map(w => w.week);
+    const predicted    = forecast.map(w => w.predicted_qty_m);
+    const ciLower      = forecast.map(w => w.ci_lower ?? w.predicted_qty_m);
+    const ciUpper      = forecast.map(w => w.ci_upper ?? w.predicted_qty_m);
+    const confirmed    = forecast.map(w => w.confirmed_qty_m ?? null);
+    const effective    = forecast.map(w => w.effective_qty_m ?? w.predicted_qty_m);
+
+    if (forecastChart) forecastChart.destroy();
+
+    const ctx = document.getElementById('forecast-chart').getContext('2d');
+    forecastChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          // 1. CI Upper Boundary
+          {
+            label: 'CI Upper',
+            data: ciUpper,
+            borderColor: 'rgba(249,115,22,0.35)',
+            borderDash: [4, 4],
+            borderWidth: 1,
+            backgroundColor: 'transparent',
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0,
+          },
+          // 2. CI Lower Boundary & Shaded Area
+          {
+            label: '80% Confidence Band',
+            data: ciLower,
+            borderColor: 'rgba(249,115,22,0.35)',
+            borderDash: [4, 4],
+            borderWidth: 1,
+            backgroundColor: 'rgba(249,115,22,0.18)',
+            fill: '-1',
+            tension: 0.3,
+            pointRadius: 0,
+          },
+          // 3. Prophet Forecast Line (Orange)
+          {
+            label: 'Prophet Forecast',
+            data: predicted,
+            borderColor: '#f97316',
+            backgroundColor: 'transparent',
+            borderWidth: 3,
+            tension: 0.3,
+            pointBackgroundColor: '#f97316',
+            pointBorderColor: '#000000',
+            pointRadius: 5,
+            pointHoverRadius: 8,
+            order: 2,
+          },
+          // 4. Effective / Recommended Production Plan (Green Dashed Line)
+          {
+            label: 'Effective / Recommended Plan',
+            data: effective,
+            borderColor: '#22c55e',
+            backgroundColor: 'transparent',
+            borderWidth: 3,
+            borderDash: [6, 4],
+            tension: 0.3,
+            pointBackgroundColor: '#22c55e',
+            pointBorderColor: '#ffffff',
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            order: 1,
+          },
+          // 5. Confirmed Orders (Green Vertical Bars)
+          {
+            label: 'Confirmed Orders',
+            data: confirmed,
+            type: 'bar',
+            backgroundColor: 'rgba(34,197,94,0.45)',
+            borderColor: '#22c55e',
+            borderWidth: 2,
+            barThickness: 24,
+            order: 3,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#111111',
+            borderColor: '#333333',
+            borderWidth: 1,
+            titleFont: { family: 'Space Mono', size: 11 },
+            bodyFont: { family: 'Space Mono', size: 11 },
+            callbacks: {
+              label: ctx => {
+                if (ctx.raw == null) return null;
+                return ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString()} m`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: '#1a1a1a' },
+            ticks: {
+              color: '#888888',
+              font: { family: 'Space Mono', size: 10 },
+              maxRotation: 45,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#1a1a1a' },
+            ticks: {
+              color: '#888888',
+              font: { family: 'Space Mono', size: 10 },
+              callback: v => v.toLocaleString() + ' m',
+            },
+          },
+        },
+      },
+    });
+  }
+
+  /* ── Table ────────────────────────────────────────────────────────────── */
+  function renderTable(forecast) {
+    const tbody = document.getElementById('forecast-tbody');
+    tbody.innerHTML = '';
+
+    forecast.forEach(row => {
+      const src = row.source === 'confirmed_override' ? 'confirmed' :
+                  row.source === 'moving_average'     ? 'fallback' : 'prophet';
+      const srcLabel = src === 'prophet' ? 'Prophet' : src === 'confirmed' ? 'Confirmed' : 'Fallback';
+      const tr = document.createElement('tr');
+      tr.className = 'animate-in';
+      tr.innerHTML = `
+        <td class="td-week">${row.week}</td>
+        <td class="td-forecast">${(row.predicted_qty_m ?? 0).toLocaleString()}</td>
+        <td style="color:var(--text-muted)">${(row.ci_lower ?? '–').toLocaleString?.() ?? '–'}</td>
+        <td style="color:var(--text-muted)">${(row.ci_upper ?? '–').toLocaleString?.() ?? '–'}</td>
+        <td class="td-confirmed">${row.confirmed_qty_m != null ? row.confirmed_qty_m.toLocaleString() : '–'}</td>
+        <td class="td-effective">${(row.effective_qty_m ?? row.predicted_qty_m).toLocaleString()}</td>
+        <td><span class="src-badge src-${src}">${srcLabel}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('table-empty').style.display = 'none';
+    document.getElementById('table-wrap').style.display = 'block';
+  }
+
+  /* ── Confirmed Orders Manager ─────────────────────────────────────────── */
+  async function addConfirmedOrder() {
+    const productType = document.getElementById('product-select').value;
+    const week        = document.getElementById('co-week').value.trim();
+    const buyer       = document.getElementById('co-buyer').value.trim();
+    const qty         = parseFloat(document.getElementById('co-qty').value);
+
+    if (!week || !buyer || isNaN(qty) || qty <= 0) {
+      addLog('Please select a week, enter buyer name and a valid quantity.', 'warning');
+      return;
+    }
+
+    if (isApiOnline) {
+      try {
+        const r = await fetch(`${API_BASE}/agents/demand/confirmed-orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product_type: productType, week_label: week, buyer, quantity_m: qty }),
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+        document.getElementById('co-buyer').value = '';
+        document.getElementById('co-qty').value   = '';
+
+        addLog(`Confirmed order added: ${buyer} — ${qty.toLocaleString()} m (${week})`, 'success');
+        await runForecast();
+        return;
+      } catch (e) {
+        addLog(`API failed, saving order locally: ${e.message}`, 'warning');
+      }
+    }
+
+    // Real-Time Demo / Offline Sync Mode
+    const newOrder = {
+      id: Date.now(),
+      product_type: productType,
+      week_label: week,
+      buyer: buyer,
+      quantity_m: qty,
+      is_active: true
+    };
+
+    // Remove existing demo order for same week & product if any, then add new
+    demoOrders = demoOrders.filter(o => !(o.product_type === productType && o.week_label === week));
+    demoOrders.push(newOrder);
+
+    if (lastForecastData && lastForecastData.forecast) {
+      const targetWeek = lastForecastData.forecast.find(w => w.week === week);
+      if (targetWeek) {
+        targetWeek.confirmed_qty_m = qty;
+        targetWeek.effective_qty_m = qty;
+        targetWeek.source = 'confirmed_override';
+      }
+      renderForecast(lastForecastData);
+    }
+
+    document.getElementById('co-buyer').value = '';
+    document.getElementById('co-qty').value   = '';
+    addLog(`Confirmed order added: ${buyer} — ${qty.toLocaleString()} m for ${week}`, 'success');
+  }
+
+  async function loadConfirmedOrders() {
+    const productType = document.getElementById('product-select').value;
+    if (isApiOnline) {
+      try {
+        const r = await fetch(`${API_BASE}/agents/demand/confirmed-orders?product_type=${productType}`, {
+          signal: AbortSignal.timeout(3000)
+        });
+        const orders = await r.json();
+        renderConfirmedList(orders);
+        return;
+      } catch (e) {
+        // Fall back to demo list
+      }
+    }
+
+    // Offline / Demo list sync
+    const activeDemoOrders = demoOrders.filter(o => o.product_type === productType && o.is_active);
+    renderConfirmedList(activeDemoOrders);
+  }
+
+  function renderConfirmedList(orders) {
+    const el = document.getElementById('confirmed-list');
+    document.getElementById('confirmed-count').textContent = orders.length;
+
+    if (orders.length === 0) {
+      el.innerHTML = '<div class="empty-state" style="padding:1rem"><i class="fa fa-inbox" style="font-size:1.5rem"></i> No confirmed orders yet.</div>';
+      return;
+    }
+    el.innerHTML = '';
+    orders.forEach(o => renderConfirmedItem(o, el));
+  }
+
+  function renderConfirmedItem(o, container) {
+    const el = container || document.getElementById('confirmed-list');
+    if (el.querySelector('.empty-state')) el.innerHTML = '';
+
+    const div = document.createElement('div');
+    div.className = 'confirmed-item animate-in';
+    div.id = `co-${o.id}`;
+    div.innerHTML = `
+      <div class="confirmed-item-left">
+        <span class="confirmed-item-week">${o.week_label}</span>
+        <span class="confirmed-item-detail">${o.buyer} · ${parseInt(o.quantity_m).toLocaleString()} m</span>
+      </div>
+      <button class="btn-sm danger" onclick="cancelOrder(${o.id}, '${o.week_label}')" title="Cancel Order">
+        <i class="fa fa-times"></i>
+      </button>
+    `;
+    el.appendChild(div);
+  }
+
+  async function cancelOrder(id, weekLabel) {
+    const productType = document.getElementById('product-select').value;
+
+    if (isApiOnline) {
+      try {
+        await fetch(`${API_BASE}/agents/demand/confirmed-orders/${id}`, { method: 'DELETE' });
+        addLog(`Confirmed order cancelled.`, 'info');
+        await runForecast();
+        return;
+      } catch (e) {
+        // fallback to offline cancel
+      }
+    }
+
+    // Remove from in-memory demo array
+    demoOrders = demoOrders.filter(o => o.id !== id);
+
+    if (lastForecastData && lastForecastData.forecast && weekLabel) {
+      const targetWeek = lastForecastData.forecast.find(w => w.week === weekLabel);
+      if (targetWeek) {
+        targetWeek.confirmed_qty_m = null;
+        targetWeek.effective_qty_m = targetWeek.predicted_qty_m;
+        targetWeek.source = 'prophet';
+      }
+      renderForecast(lastForecastData);
+    }
+
+    addLog(`Confirmed order removed (${weekLabel}).`, 'info');
+  }
+
+  /* ── Export CSV ───────────────────────────────────────────────────────── */
+  function exportCSV() {
+    if (!lastForecastData) { addLog('No forecast to export.', 'warning'); return; }
+    const rows = [
+      ['Week', 'Forecast_m', 'CI_Lower', 'CI_Upper', 'Confirmed_m', 'Effective_m', 'Source'],
+      ...lastForecastData.forecast.map(w => [
+        w.week, w.predicted_qty_m, w.ci_lower ?? '', w.ci_upper ?? '',
+        w.confirmed_qty_m ?? '', w.effective_qty_m ?? w.predicted_qty_m, w.source
+      ])
+    ];
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `demand_forecast_${lastForecastData.product_type}_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    addLog(`CSV exported: ${lastForecastData.forecast.length} weeks of data.`, 'success');
+  }
+
+  function populateWeekDropdown(forecast) {
+    const sel = document.getElementById('co-week');
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = '';
+    forecast.forEach(w => {
+      const opt = document.createElement('option');
+      opt.value = w.week;
+      opt.textContent = `${w.week}`;
+      sel.appendChild(opt);
+    });
+    if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+      sel.value = currentVal;
+    }
+  }
+
+  /* ── Init ─────────────────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', async () => {
+    addLog('Agent 08 Demand Forecasting UI initialised.', 'info');
+    await checkHealth();
+    await runForecast();
+    setInterval(checkHealth, 30000);
+  });
+</script>
+
+  <!-- Iframe view compatibility script -->
+  <script>
+    if (window.self !== window.top) {
+      const navEl = document.querySelector('nav');
+      if (navEl) {
+        navEl.style.display = 'none';
+      }
+      document.body.style.paddingTop = '0px';
+    }
+  </script>
+
+
+  <!-- ChartJS Color Correction Script -->
+  <script>
+    if (window.Chart) {
+      Chart.defaults.color = '#475569';
+      Chart.defaults.borderColor = 'rgba(15, 23, 42, 0.08)';
+    }
+  </script>
+
+</body>
+</html>

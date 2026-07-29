@@ -1,0 +1,608 @@
+/* TEXMIND — Unified agent panel theme (iframe + standalone) */
+@import url('texmind-scroll.css');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --dark: #0f172a;
+  --white: #ffffff;
+  --accent: #2563eb;
+  --muted: rgba(15, 23, 42, 0.58);
+  --border: 3px solid var(--dark);
+  --panel-shadow: 3px 3px 0 var(--accent);
+  --card-shadow: 2px 2px 0 var(--dark);
+
+  /* Override dark-theme tokens used in agent pages */
+  --bg: #ffffff;
+  --bg-color: #ffffff;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --surface-border: #0f172a;
+  --text: #0f172a;
+  --text-muted: rgba(15, 23, 42, 0.58);
+  --text-white: #0f172a;
+  --text-color: #0f172a;
+  --dark-card: #ffffff;
+  --card-bg: #ffffff;
+  --panel-bg: #ffffff;
+  --accent-primary: #2563eb;
+  --accent-secondary: #3b82f6;
+}
+
+html, body {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: var(--dark) !important;
+  font-family: 'DM Sans', 'Inter', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+html.agent-embed {
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+body.agent-embed {
+  display: block !important;
+  padding: 0 !important;
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide chrome duplicated by dashboard shell */
+body.agent-embed > header,
+body.agent-embed nav,
+body.agent-embed header.nav-bar,
+body.agent-embed .top-nav,
+body.agent-embed > h1:first-of-type,
+body.agent-embed .page-hero,
+body.agent-embed .hero-banner {
+  display: none !important;
+}
+
+/* Page scrolls as a whole — no trapped height on layout shells */
+body.agent-embed .container,
+body.agent-embed .dashboard-container,
+body.agent-embed .main-content,
+body.agent-embed .page-wrap,
+body.agent-embed .content-wrapper {
+  display: grid !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  flex: none !important;
+  align-items: start !important;
+  align-content: start !important;
+}
+
+/* Cards/panels grow to full content height — no internal scrollbars */
+body.agent-embed .panel,
+body.agent-embed .card-panel,
+body.agent-embed .card,
+body.agent-embed .control-panel,
+body.agent-embed .chart-panel,
+body.agent-embed .status-panel,
+body.agent-embed .result-panel,
+body.agent-embed .form-panel,
+body.agent-embed .metric-card,
+body.agent-embed .kpi-card,
+body.agent-embed .recipe-card,
+body.agent-embed .machine-card {
+  overflow: visible !important;
+  max-height: none !important;
+  min-height: auto !important;
+  height: auto !important;
+  flex: none !important;
+}
+
+body.agent-embed .feed-list,
+body.agent-embed .log-container,
+body.agent-embed .incident-log,
+body.agent-embed .alert-list,
+body.agent-embed .console-log,
+body.agent-embed .anomaly-feed {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+body.agent-embed .chart-container,
+body.agent-embed .video-container,
+body.agent-embed .chart-wrapper {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+/* Fixed 100vh — Agents 01 & 03 (dashboard iframe) */
+html.agent-embed.agent-fixed-viewport,
+body.agent-embed.agent-fixed-viewport {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.agent-embed.agent-fixed-viewport footer {
+  display: none !important;
+}
+
+body.agent-embed.agent-fixed-viewport .container {
+  flex: 1 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  align-items: stretch !important;
+  align-content: stretch !important;
+  padding: 0.75rem 1.25rem 1rem !important;
+  gap: 0.85rem !important;
+}
+
+body.agent-embed.agent-fixed-viewport .panel {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 0.9rem 1rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.65rem !important;
+  margin-bottom: 0 !important;
+}
+
+body.agent-embed.agent-fixed-viewport .panel-title {
+  flex-shrink: 0 !important;
+  font-size: 1.2rem !important;
+  padding-bottom: 0.45rem !important;
+  margin-bottom: 0 !important;
+}
+
+body.agent-embed.agent-fixed-viewport .panel form,
+body.agent-embed.agent-fixed-viewport .panel > #resultsContainer,
+body.agent-embed.agent-fixed-viewport .panel > .result-box {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+body.agent-embed.agent-fixed-viewport #resultsContainer {
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+}
+
+body.agent-embed.agent-fixed-viewport .preset-btns {
+  flex-shrink: 0 !important;
+  gap: 0.35rem !important;
+}
+
+body.agent-embed.agent-fixed-viewport .grid-2 {
+  gap: 0.65rem !important;
+}
+
+body.agent-embed.agent-fixed-viewport input,
+body.agent-embed.agent-fixed-viewport select {
+  padding: 0.5rem 0.7rem !important;
+  margin-bottom: 0.5rem !important;
+  font-size: 0.76rem !important;
+}
+
+body.agent-embed.agent-fixed-viewport label {
+  margin-bottom: 0.2rem !important;
+  font-size: 0.62rem !important;
+}
+
+body.agent-embed.agent-fixed-viewport .form-group {
+  gap: 0.2rem !important;
+}
+
+body.agent-embed.agent-fixed-viewport .btn,
+body.agent-embed.agent-fixed-viewport button[type="submit"] {
+  padding: 0.6rem 1rem !important;
+  flex-shrink: 0 !important;
+}
+
+body.agent-embed.agent-fixed-viewport .result-box {
+  padding: 1rem !important;
+}
+
+@media (max-width: 900px) {
+  body.agent-embed.agent-fixed-viewport .container {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+  }
+}
+
+
+h1, h2, h3, h4, h5, h6,
+.panel-title, .card-title, .kpi-label, .widget-title, .hero-title, .page-title {
+  font-family: 'Bebas Neue', sans-serif !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  color: var(--dark) !important;
+  line-height: 1.05 !important;
+}
+
+h1 { font-size: 2rem !important; margin-bottom: 1rem !important; }
+h2, .panel-title { font-size: 1.35rem !important; margin-bottom: 0.65rem !important; }
+h3 { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
+
+label, .metric-label, .kpi-subtext, .stat-label, .subtext, .hero-stat-label,
+.telemetry-lbl, .feed-item-time {
+  font-family: 'Space Mono', monospace !important;
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+
+/* Layout shells */
+.container,
+.dashboard-container {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 1.25rem 1.5rem 1.5rem !important;
+  gap: 1.25rem !important;
+}
+
+body:not(.agent-embed) .container,
+body:not(.agent-embed) .dashboard-container {
+  padding: 1.5rem 2rem 2rem !important;
+}
+
+.grid-2 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 1.25rem !important;
+  align-items: start !important;
+}
+
+@media (max-width: 960px) {
+  .grid-2,
+  .dashboard-container {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Panels & cards */
+.panel,
+.card-panel,
+.card,
+.metric-card,
+.kpi-card,
+.stat-card,
+.telemetry-box,
+.machine-card,
+.result-box,
+.recipe-card,
+.agent-card,
+.control-panel,
+.chart-panel,
+.status-card,
+.console-log,
+.alert-list,
+.video-container,
+.hero-panel,
+.status-panel,
+.logs-panel,
+.telemetry-card,
+.chart-wrapper,
+.dashboard-header,
+.card-box,
+.softphone-card,
+.phone-screen,
+.toggle-box,
+.insight-box,
+.feed-item {
+  background: var(--white) !important;
+  border: 2px solid var(--dark) !important;
+  border-radius: 0 !important;
+  color: var(--dark) !important;
+}
+
+.panel,
+.card-panel,
+.card,
+.control-panel,
+.chart-panel,
+.status-panel,
+.insight-box {
+  box-shadow: var(--panel-shadow) !important;
+  padding: 1.15rem 1.25rem !important;
+  margin-bottom: 0 !important;
+}
+
+.metric-card,
+.telemetry-box,
+.kpi-card,
+.stat-card {
+  box-shadow: var(--card-shadow) !important;
+  padding: 0.85rem 0.75rem !important;
+  margin-bottom: 0 !important;
+  text-align: center !important;
+}
+
+.panel-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+  flex-wrap: wrap !important;
+  border-bottom: 2px solid rgba(15, 23, 42, 0.1) !important;
+  padding-bottom: 0.65rem !important;
+  margin-bottom: 0.85rem !important;
+}
+
+.panel-header .panel-title {
+  margin-bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+}
+
+.panel-header .panel-title i {
+  color: var(--accent) !important;
+  font-size: 0.95rem !important;
+}
+
+.metric-grid,
+.telemetry-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 0.65rem !important;
+}
+
+.telemetry-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+@media (max-width: 720px) {
+  .telemetry-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+.metric-value,
+.kpi-value,
+.metric-val,
+.telemetry-val,
+.stat-value,
+.value,
+.accent-text {
+  font-family: 'Bebas Neue', sans-serif !important;
+  font-size: 1.65rem !important;
+  color: var(--accent) !important;
+  line-height: 1 !important;
+  margin-top: 0.25rem !important;
+}
+
+/* Pipeline flow (Agent 00) */
+.flow-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.65rem !important;
+  margin-top: 0.75rem !important;
+  align-items: stretch !important;
+}
+
+.flow-step {
+  flex: 1 1 110px !important;
+  min-width: 100px !important;
+  border: 2px solid var(--dark) !important;
+  background: var(--white) !important;
+  padding: 0.75rem 0.5rem !important;
+  text-align: center !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+.flow-step-num {
+  font-family: 'Space Mono', monospace !important;
+  font-size: 0.58rem !important;
+  color: var(--muted) !important;
+}
+
+.flow-step-name {
+  font-family: 'Bebas Neue', sans-serif !important;
+  font-size: 1.05rem !important;
+  margin-top: 0.15rem !important;
+}
+
+.flow-step-status {
+  font-family: 'Space Mono', monospace !important;
+  font-size: 0.58rem !important;
+  margin-top: 0.3rem !important;
+  color: var(--muted) !important;
+}
+
+/* Forms */
+input, select, textarea {
+  background: var(--white) !important;
+  color: var(--dark) !important;
+  border: 2px solid var(--dark) !important;
+  border-radius: 0 !important;
+  padding: 0.65rem 0.85rem !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: 0.78rem !important;
+  width: 100% !important;
+  margin-bottom: 0.85rem !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: var(--accent) !important;
+}
+
+label {
+  display: block !important;
+  margin-bottom: 0.35rem !important;
+}
+
+/* Buttons */
+.btn, .btn-primary, .btn-submit, button[type="submit"],
+.preset-btn, .key-btn, .zone-btn, .btn-action-small {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border: 2px solid var(--dark) !important;
+  border-radius: 0 !important;
+  padding: 0.7rem 1.25rem !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  cursor: pointer !important;
+  box-shadow: var(--card-shadow) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+}
+
+.btn-outline, .btn-action, .btn-outline-primary, .zone-btn {
+  background: var(--white) !important;
+  color: var(--dark) !important;
+}
+
+.zone-btn.active,
+.btn-primary:hover,
+.btn:hover {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+}
+
+/* Feeds & lists — grow with content (page scrolls, not card) */
+.feed-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.feed-item {
+  padding: 0.75rem 0.85rem !important;
+  border-left: 3px solid #22c55e !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+}
+
+.feed-item.anomaly { border-left-color: #ef4444 !important; }
+
+.feed-item-title {
+  font-family: 'Space Mono', monospace !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+}
+
+.feed-item-desc {
+  font-size: 0.78rem !important;
+  color: var(--muted) !important;
+  margin-top: 0.15rem !important;
+}
+
+/* Charts */
+.chart-container {
+  position: relative !important;
+  min-height: 260px !important;
+  padding: 0.5rem 0 0 !important;
+}
+
+canvas {
+  background: var(--white) !important;
+  max-width: 100% !important;
+}
+
+.insight-box {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.85rem !important;
+  padding: 1rem 1.15rem !important;
+  background: #eff6ff !important;
+}
+
+.insight-box h4 {
+  font-size: 0.95rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.insight-box p {
+  font-size: 0.82rem !important;
+  line-height: 1.55 !important;
+  color: var(--muted) !important;
+}
+
+.insight-icon {
+  color: var(--accent) !important;
+  font-size: 1.25rem !important;
+  margin-top: 0.15rem !important;
+}
+
+/* Nested cards inside panels — avoid double heavy shadows */
+.panel .metric-card,
+.panel .telemetry-box,
+.panel .kpi-card {
+  box-shadow: var(--card-shadow) !important;
+  padding: 0.85rem 0.75rem !important;
+  margin-bottom: 0 !important;
+}
+
+.panel .panel-header + .panel-header {
+  margin-top: 0.75rem !important;
+}
+
+.agent-page .grid-2 {
+  margin-top: 1.25rem !important;
+}
+
+body.agent-embed .page-title,
+body.agent-embed .hero-title,
+body.agent-embed .hero-header,
+body.agent-embed .dashboard-header h1 {
+  display: none !important;
+}
+
+/* Tables */
+table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border: 2px solid var(--dark) !important;
+  margin-top: 0.75rem !important;
+}
+
+th, td {
+  border: 1px solid rgba(15, 23, 42, 0.15) !important;
+  padding: 0.65rem 0.75rem !important;
+  font-size: 0.82rem !important;
+  background: var(--white) !important;
+  color: var(--dark) !important;
+}
+
+th {
+  background: #f1f5f9 !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: 0.65rem !important;
+  text-transform: uppercase !important;
+}
+
+/* Tamil / alert callouts */
+.tamil-speech-box {
+  background: #fef2f2 !important;
+  border: 2px solid #ef4444 !important;
+  color: #b91c1c !important;
+  padding: 0.85rem !important;
+  font-family: 'Space Mono', monospace !important;
+  font-size: 0.82rem !important;
+}

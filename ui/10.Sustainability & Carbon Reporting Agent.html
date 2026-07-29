@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 10: Sustainability & Carbon Reporting | TEXMIND</title>
+  <meta name="description" content="TEXMIND Agent 10 — Sustainability & Carbon Reporting Agent. Consolidates effluent, energy, and traceability metrics into audit-ready ESG export reports for H&M, Marks & Spencer, and Zara.">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:ital,wght@0,400;0,600;0,900;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────────────────── */
+    :root {
+      --bg:            #f8fafc;
+      --surface:       #ffffff;
+      --surface2:      #f1f5f9;
+      --border:        #e2e8f0;
+      --border-bright: #cbd5e1;
+      --accent:        #10b981;
+      --accent-dim:    rgba(16, 185, 129, 0.12);
+      --accent-glow:   rgba(16, 185, 129, 0.35);
+      --green:         #22c55e;
+      --green-dim:     rgba(34,197,94,0.12);
+      --red:           #ef4444;
+      --red-dim:       rgba(239,68,68,0.12);
+      --yellow:        #eab308;
+      --yellow-dim:    rgba(234,179,8,0.12);
+      --text:          #0f172a;
+      --text-muted:    #64748b;
+      --text-dim:      #94a3b8;
+      --font-mono:     'Space Mono', monospace;
+      --font-sans:     'Inter', sans-serif;
+      --font-display:  'Bebas Neue', sans-serif;
+      --radius:        4px;
+      --transition:    0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-top: 0px;
+}
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.04; mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── Navigation ─────────────────────────────────────────────────────────── */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 3px;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--border);
+    }
+    .nav-breadcrumb strong { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .api-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid var(--border-bright);
+      background: var(--surface2);
+    }
+    .api-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* ── Main Container ──────────────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      position: relative;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title i { color: var(--accent); }
+
+    /* ── Metrics Grid ────────────────────────────────────────────────────────── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .metric-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 1.2rem;
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Form Inputs ─────────────────────────────────────────────────────────── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
+    label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-size: 0.88rem;
+      outline: none;
+      transition: var(--transition);
+    }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0a;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      padding: 0.85rem 1.5rem;
+      border: none;
+      border-radius: var(--radius);
+      transition: var(--transition);
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .btn-primary:hover { background: #34d399; box-shadow: 0 0 15px var(--accent-glow); }
+
+    .grade-badge {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      color: var(--accent);
+      display: inline-block;
+    }
+
+    .report-card {
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .report-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.4rem; border-bottom: 1px dashed var(--border); }
+    .report-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+    .report-val { font-weight: 600; font-size: 0.92rem; }
+  
+    /* NAV (Added dynamically) */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #ffffff;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: #0f172a;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: #84cc16;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links li {
+      display: flex;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #475569;
+      padding: 0 0.8rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      background: #84cc16;
+      color: #0f172a;
+    }
+
+  
+    .btn, .btn-primary {
+      color: #ffffff !important;
+    }
+    .btn:hover, .btn-primary:hover {
+      color: #ffffff !important;
+    }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="agent-shared.css">
+  <script src="agent-embed.js"></script>
+</head>
+<body>
+
+  <!-- Navigation -->
+  
+
+  <main>
+    <!-- Top Summary Banner -->
+    <div class="card full-width">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-leaf"></i> EXPORT BUYER ESG SUSTAINABILITY MONITOR</div>
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+          BATCH: <strong id="h-batch" style="color: var(--accent);">B-2026-0001</strong> | PERIOD: <strong id="h-period">2026-07</strong>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Overall ESG Grade</span>
+          <span class="metric-value grade-badge" id="m-grade">A+</span>
+          <span class="metric-sub">Deterministic Audit Rating</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Estimated CO2e Footprint</span>
+          <span class="metric-value" id="m-co2">3,132.4 kg</span>
+          <span class="metric-sub">0.82 kg CO2e / kWh Grid Factor</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Energy Consumed</span>
+          <span class="metric-value" id="m-energy">3,820 kWh</span>
+          <span class="metric-sub">From Agent 05 (Energy)</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Water & ETP Compliance</span>
+          <span class="metric-value" id="m-water" style="color: var(--green);">COMPLIANT</span>
+          <span class="metric-sub">From Agent 04 (Effluent)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Left Column: Input Form -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-file-pen"></i> ESG REPORT GENERATOR CONTROLS</div>
+      </div>
+
+      <form id="esg-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Batch Identifier</label>
+            <input type="text" id="f-batch-id" value="B-2026-0001" required>
+          </div>
+          <div class="form-group">
+            <label>Reporting Period</label>
+            <input type="text" id="f-period" value="2026-07">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Target Export Buyer ESG Standard</label>
+          <select id="f-template">
+            <option value="H&M Export Standard" selected>H&M Export Sustainability Standard</option>
+            <option value="Marks & Spencer Compliance">Marks & Spencer Compliance Checklist</option>
+            <option value="Zara Inditex Eco-Audit">Zara Inditex Eco-Audit Standard</option>
+          </select>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Energy Consumed (kWh)</label>
+            <input type="number" id="f-energy" value="3820">
+          </div>
+          <div class="form-group">
+            <label>Supply Chain Traceability (%)</label>
+            <input type="number" id="f-traceability" value="100">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Effluent / Water Status</label>
+            <select id="f-water">
+              <option value="compliant" selected>Compliant (ZLD Active)</option>
+              <option value="minor_variance">Minor Variance</option>
+              <option value="non_compliant">Non-Compliant</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Traceability Status</label>
+            <select id="f-trace-status">
+              <option value="verified_sustainable" selected>Verified Sustainable (GOTS)</option>
+              <option value="incomplete">Incomplete Chain</option>
+              <option value="flagged">Flagged Anomaly</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary"><i class="fa-solid fa-file-pdf"></i> GENERATE AUDIT-READY ESG REPORT</button>
+      </form>
+    </div>
+
+    <!-- Right Column: Final ESG Audit Report Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-award"></i> OFFICIAL ESG CERTIFICATE AUDIT REPORT</div>
+      </div>
+
+      <div class="report-card">
+        <div class="report-row">
+          <span class="report-label">Target Buyer Standard</span>
+          <span class="report-val" id="r-template" style="color: var(--accent);">H&M EXPORT STANDARD</span>
+        </div>
+
+        <div class="report-row">
+          <span class="report-label">Grid Carbon Factor</span>
+          <span class="report-val">0.82 kg CO2e / kWh</span>
+        </div>
+
+        <div class="report-row">
+          <span class="report-label">Total Batch Carbon Footprint</span>
+          <strong id="r-co2" style="font-size: 1.1rem; color: var(--accent);">3,132.40 kg CO2e</strong>
+        </div>
+
+        <div class="report-row">
+          <span class="report-label">Deterministic ESG Grade</span>
+          <strong id="r-grade" style="font-size: 1.4rem; color: var(--green);">A+</strong>
+        </div>
+
+        <div class="report-row">
+          <span class="report-label">1M ML Benchmark Grade</span>
+          <span class="report-val" id="r-ml-grade" style="color: var(--green);">A+</span>
+        </div>
+
+        <div class="report-row">
+          <span class="report-label">Report Document URL</span>
+          <a id="r-url" href="#" style="color: var(--accent); font-family: var(--font-mono); font-size: 0.78rem;">Download PDF</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:8010/agents/sustainability';
+
+    async function loadReport(batchId) {
+      try {
+        const res = await fetch(`${API_BASE}/report/${batchId}`);
+        if (!res.ok) throw new Error('Report not found');
+        const data = await res.json();
+        renderReport(data);
+      } catch (err) {
+        console.log('API Error:', err);
+      }
+    }
+
+    function renderReport(data) {
+      document.getElementById('h-batch').innerText = data.batch_id;
+      document.getElementById('h-period').innerText = data.period;
+
+      document.getElementById('m-grade').innerText = data.overall_sustainability_grade;
+      document.getElementById('m-co2').innerText = `${data.estimated_co2e_kg.toLocaleString()} kg`;
+      document.getElementById('m-energy').innerText = `${data.energy_used_kwh.toLocaleString()} kWh`;
+      document.getElementById('m-water').innerText = data.water_compliance.toUpperCase();
+
+      document.getElementById('r-template').innerText = data.buyer_template.toUpperCase();
+      document.getElementById('r-co2').innerText = `${data.estimated_co2e_kg.toLocaleString()} kg CO2e`;
+      document.getElementById('r-grade').innerText = data.overall_sustainability_grade;
+      document.getElementById('r-ml-grade').innerText = data.model_benchmark_grade;
+      document.getElementById('r-url').href = data.report_url;
+      document.getElementById('r-url').innerText = `${data.batch_id}_${data.period}.pdf`;
+    }
+
+    document.getElementById('esg-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const batchId = document.getElementById('f-batch-id').value;
+      const period = document.getElementById('f-period').value;
+      const template = document.getElementById('f-template').value;
+      const energy = parseFloat(document.getElementById('f-energy').value);
+      const traceScore = parseFloat(document.getElementById('f-traceability').value);
+      const water = document.getElementById('f-water').value;
+      const traceStatus = document.getElementById('f-trace-status').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/generate-report`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            batch_id: batchId,
+            period: period,
+            buyer_template: template,
+            energy_used_kwh: energy,
+            water_compliance: water,
+            traceability_status: traceStatus,
+            traceability_score: traceScore
+          })
+        });
+        const data = await res.json();
+        renderReport(data);
+      } catch (err) {
+        alert('Failed to connect to Agent 10 service: ' + err.message);
+      }
+    });
+
+    loadReport('B-2026-0001');
+  </script>
+
+  <!-- Iframe view compatibility script -->
+  <script>
+    if (window.self !== window.top) {
+      const navEl = document.querySelector('nav');
+      if (navEl) {
+        navEl.style.display = 'none';
+      }
+      document.body.style.paddingTop = '0px';
+    }
+  </script>
+
+
+  <!-- ChartJS Color Correction Script -->
+  <script>
+    if (window.Chart) {
+      Chart.defaults.color = '#475569';
+      Chart.defaults.borderColor = 'rgba(15, 23, 42, 0.08)';
+    }
+  </script>
+
+</body>
+</html>

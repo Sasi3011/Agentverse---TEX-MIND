@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEXMIND — Dyeing Recipe Optimization Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --accent: #8b5cf6;
+      --white: #0f172a;
+      --dark: #f8fafc;
+      --dark-card: #ffffff;
+      --border: 2px solid #e2e8f0;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+
+    html, body {
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+      padding-top: 0px;
+    }
+
+    body {
+      background-color: var(--dark);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.04; mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #ffffff;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: #0f172a;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links li {
+      display: flex;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #475569;
+      padding: 0 0.8rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel {
+      background: var(--dark-card);
+      border: var(--border);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.05);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .panel-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      border-bottom: 2px solid #cbd5e1;
+      padding-bottom: 0.75rem;
+      color: var(--white);
+    }
+
+    .panel-title i {
+      color: var(--accent);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-size: 0.75rem;
+      color: #64748b;
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, select {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      color: var(--white);
+      padding: 0.85rem 1rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #ffffff !important;
+      border: 3px solid var(--accent);
+      padding: 1rem 1.5rem;
+      font-weight: 700;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.05);
+      transition: all 0.15s;
+    }
+
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .result-box {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .recipe-card {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .recipe-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      color: var(--accent);
+      line-height: 1;
+      margin-top: 0.3rem;
+    }
+
+    footer {
+      background: #ffffff;
+      border-top: 2px solid #e2e8f0;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: auto;
+    }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="agent-shared.css">
+  <script src="agent-embed.js"></script>
+</head>
+<body class="agent-fixed-viewport">
+
+  
+
+  <div class="container">
+    <div class="panel">
+      <div class="panel-title">
+        <i class="fas fa-palette"></i> Recipe Controls
+      </div>
+      <form id="recipeForm" onsubmit="getRecipe(event)">
+        <div class="form-group">
+          <label for="batch_id">BATCH ID</label>
+          <input type="text" id="batch_id" required>
+        </div>
+        <div class="form-group">
+          <label for="target_shade_code">TARGET SHADE CODE</label>
+          <select id="target_shade_code" required>
+            <option value="BOTTLE-GREEN-30">BOTTLE-GREEN-30</option>
+            <option value="ROYAL-909">ROYAL-909</option>
+            <option value="NEON-YELLOW-99">NEON-YELLOW-99</option>
+            <option value="SUNSET-101">SUNSET-101</option>
+            <option value="SLATE-GREY-90">SLATE-GREY-90</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fabric_type">FABRIC TYPE</label>
+          <select id="fabric_type" required>
+            <option value="nylon_taffeta">nylon_taffeta</option>
+            <option value="wool_blend">wool_blend</option>
+            <option value="linen_weave">linen_weave</option>
+            <option value="denim_twill">denim_twill</option>
+            <option value="cotton_poplin">cotton_poplin</option>
+          </select>
+        </div>
+        <button type="submit" class="btn" style="width: 100%;" id="predictBtn"><i class="fas fa-wand-magic-sparkles"></i> Predict Recipe</button>
+      </form>
+      <div id="api-status" style="margin-top: 0.75rem; padding: 0.65rem 0.85rem; border: 2px solid #f59e0b; background: #fffbeb; font-family: 'Space Mono', monospace; font-size: 0.68rem; color: #92400e;">
+        Checking dyeing API on port 8003...
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <i class="fas fa-chart-line"></i> Optimization Output
+      </div>
+      <div id="resultsContainer">
+        <div class="result-box" style="text-align: center; padding: 4rem 1rem; color: #64748b;">
+          <i class="fas fa-arrow-left" style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent);"></i>
+          <p style="font-family: 'Space Mono'; font-size: 0.85rem;">Submit recipe parameters to calculate the optimal dye master configuration.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    TEXMIND Multi-Agent Cognitive Twin • Dyeing Recipe Optimization Agent Subsystem (Port 8003)
+  </footer>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8003/agents/dye";
+
+    function freshBatchId() {
+      const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const rand = Math.floor(Math.random() * 9000 + 1000);
+      return `B-2026-${stamp}-${rand}`;
+    }
+
+    function setApiStatus(online, message) {
+      const el = document.getElementById("api-status");
+      if (!el) return;
+      el.style.borderColor = online ? "#22c55e" : "#ef4444";
+      el.style.background = online ? "#f0fdf4" : "#fef2f2";
+      el.style.color = online ? "#166534" : "#991b1b";
+      el.textContent = message;
+    }
+
+    async function checkApiHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/health`, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setApiStatus(true, "Dyeing ML API online on port 8003 — predictions update with shade & fabric");
+        return true;
+      } catch (err) {
+        setApiStatus(false, "Dyeing API offline on port 8003 — run .\\run_all.ps1");
+        return false;
+      }
+    }
+
+    async function getRecipe(e) {
+      e.preventDefault();
+      const btn = document.getElementById("predictBtn");
+      const container = document.getElementById("resultsContainer");
+      const payload = {
+        batch_id: document.getElementById("batch_id").value.trim() || freshBatchId(),
+        target_shade_code: document.getElementById("target_shade_code").value,
+        fabric_type: document.getElementById("fabric_type").value
+      };
+      document.getElementById("batch_id").value = payload.batch_id;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running ML Prediction...';
+      container.innerHTML = `
+        <div class="result-box" style="text-align:center; padding: 3rem 1rem; color:#64748b;">
+          <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:1rem; color:var(--accent);"></i>
+          <p style="font-family:'Space Mono'; font-size:0.85rem;">Optimizing recipe for ${payload.target_shade_code} / ${payload.fabric_type}...</p>
+        </div>`;
+
+      try {
+        const res = await fetch(`${API_BASE}/recommend`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        renderRecipe(data);
+        setApiStatus(true, "Dyeing ML API online on port 8003 — predictions update with shade & fabric");
+      } catch (err) {
+        container.innerHTML = `
+          <div class="result-box" style="text-align:center; padding: 2rem 1rem; color:#991b1b;">
+            <p style="font-family:'Space Mono'; font-size:0.85rem;">${err.message}</p>
+            <p style="margin-top:0.75rem; font-size:0.75rem;">Start Agent 03: cd agents\\3.Dyeing Recipe Optimization Agent<br>python -m uvicorn main:app --host 127.0.0.1 --port 8003</p>
+          </div>`;
+        setApiStatus(false, "Dyeing API offline on port 8003 — run .\\run_all.ps1");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Predict Recipe';
+      }
+    }
+
+    function sourceLabel(source) {
+      const labels = {
+        random_forest_ml: "Random Forest ML",
+        historical_knn: "Historical k-NN",
+        cached_record: "Cached batch record",
+        default_fallback: "Default fallback"
+      };
+      return labels[source] || source || "ML engine";
+    }
+
+    function renderRecipe(data) {
+      const container = document.getElementById("resultsContainer");
+      const recipe = data.recommended_recipe;
+      const riskColor = data.estimated_redye_risk === "low" ? "var(--green)" : "var(--red)";
+
+      container.innerHTML = `
+        <div class="result-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <h3 style="font-family:'Bebas Neue'; font-size:1.6rem; letter-spacing:1px;">Recommended DyeMaster Configuration</h3>
+            <span style="font-family:'Space Mono'; font-size:0.65rem; padding:0.25rem 0.5rem; border:2px solid #cbd5e1; background:#f8fafc;">${sourceLabel(data.prediction_source)}</span>
+          </div>
+          <p style="font-family:'Space Mono'; font-size:0.72rem; color:#64748b; margin-top:0.35rem;">Batch ${data.batch_id}</p>
+          <div class="recipe-grid">
+            <div class="recipe-card">
+              <label>Dye %</label>
+              <div class="recipe-val">${recipe.dye_pct}%</div>
+            </div>
+            <div class="recipe-card">
+              <label>Temperature</label>
+              <div class="recipe-val">${recipe.temperature_c}°C</div>
+            </div>
+            <div class="recipe-card">
+              <label>Time</label>
+              <div class="recipe-val">${recipe.time_min} mins</div>
+            </div>
+            <div class="recipe-card">
+              <label>Liquor Ratio</label>
+              <div class="recipe-val">${recipe.liquor_ratio}</div>
+            </div>
+          </div>
+          <div class="recipe-grid" style="margin-top: 1rem;">
+            <div class="recipe-card">
+              <label>Match Probability</label>
+              <div class="recipe-val" style="color:var(--green)">${Math.round(data.predicted_match_probability * 100)}%</div>
+            </div>
+            <div class="recipe-card">
+              <label>Redye Risk</label>
+              <div class="recipe-val" style="color:${riskColor}">${data.estimated_redye_risk.toUpperCase()}</div>
+            </div>
+          </div>
+          <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+            <button class="btn" style="flex:1; background:var(--green); border-color:var(--green);" onclick="logOutcome('${data.batch_id}', 'match')">Confirm Match</button>
+            <button class="btn" style="flex:1; background:var(--red); border-color:var(--red);" onclick="logOutcome('${data.batch_id}', 're-dye')">Flag Re-Dye</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function logOutcome(batchId, outcome) {
+      try {
+        const res = await fetch(`${API_BASE}/log-outcome`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ batch_id: batchId, outcome: outcome })
+        });
+        const data = await res.json();
+        alert(data.message || "Outcome logged successfully.");
+      } catch (err) {
+        alert("Failed to log outcome: " + err);
+      }
+    }
+
+    document.getElementById("batch_id").value = freshBatchId();
+    checkApiHealth();
+  </script>
+
+  <!-- Iframe view compatibility script -->
+  <script>
+    if (window.self !== window.top) {
+      const navEl = document.querySelector('nav');
+      if (navEl) {
+        navEl.style.display = 'none';
+      }
+      document.body.style.paddingTop = '0px';
+    }
+  </script>
+
+
+  <!-- ChartJS Color Correction Script -->
+  <script>
+    if (window.Chart) {
+      Chart.defaults.color = '#475569';
+      Chart.defaults.borderColor = 'rgba(15, 23, 42, 0.08)';
+    }
+  </script>
+
+</body>
+</html>

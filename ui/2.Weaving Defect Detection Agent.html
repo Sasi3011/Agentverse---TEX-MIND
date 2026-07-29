@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 02: Weaving Defect Detection | TEXMIND</title>
+  <meta name="description" content="TEXMIND Agent 02 — Real-time Weaving Defect Detection Agent using Computer Vision CNN trained on local Fabric Defect Dataset (hole, stain, lines, vertical, horizontal).">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:ital,wght@0,400;0,600;0,900;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────────────────── */
+    :root {
+      --bg:            #f8fafc;
+      --surface:       #ffffff;
+      --surface2:      #f1f5f9;
+      --border:        #e2e8f0;
+      --border-bright: #cbd5e1;
+      --accent:        #38bdf8;
+      --accent-dim:    rgba(56, 189, 248, 0.12);
+      --accent-glow:   rgba(56, 189, 248, 0.35);
+      --green:         #22c55e;
+      --green-dim:     rgba(34,197,94,0.12);
+      --red:           #ef4444;
+      --red-dim:       rgba(239,68,68,0.12);
+      --yellow:        #eab308;
+      --yellow-dim:    rgba(234,179,8,0.12);
+      --text:          #0f172a;
+      --text-muted:    #64748b;
+      --text-dim:      #94a3b8;
+      --font-mono:     'Space Mono', monospace;
+      --font-sans:     'Inter', sans-serif;
+      --font-display:  'Bebas Neue', sans-serif;
+      --radius:        4px;
+      --transition:    0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-top: 0px;
+}
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.04; mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ── Navigation Bar ──────────────────────────────────────────────────────── */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 3px;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-breadcrumb {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--border);
+    }
+    .nav-breadcrumb strong { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .api-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid var(--border-bright);
+      background: var(--surface2);
+    }
+    .api-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* ── Main Container ──────────────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      position: relative;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title i { color: var(--accent); }
+
+    /* ── Metrics Grid ────────────────────────────────────────────────────────── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .metric-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 1.2rem;
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Image Viewport ──────────────────────────────────────────────────────── */
+    .image-viewport {
+      width: 100%;
+      height: 320px;
+      background: #ffffff;
+      border: 1px dashed var(--border-bright);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .image-viewport img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    /* ── Form Inputs ─────────────────────────────────────────────────────────── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
+    label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+    input, select {
+      background: var(--bg);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-size: 0.88rem;
+      outline: none;
+      transition: var(--transition);
+    }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0a;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      padding: 0.85rem 1.5rem;
+      border: none;
+      border-radius: var(--radius);
+      transition: var(--transition);
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .btn-primary:hover { background: #7dd3fc; box-shadow: 0 0 15px var(--accent-glow); }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-green { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+    .badge-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid var(--yellow); }
+    .badge-red { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+  
+    /* NAV (Added dynamically) */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #ffffff;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      color: #0f172a;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: #ef4444;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links li {
+      display: flex;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #475569;
+      padding: 0 0.8rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      background: #ef4444;
+      color: #0f172a;
+    }
+
+  
+    .btn, .btn-primary {
+      color: #ffffff !important;
+    }
+    .btn:hover, .btn-primary:hover {
+      color: #ffffff !important;
+    }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="agent-shared.css">
+  <script src="agent-embed.js"></script>
+</head>
+<body>
+
+  <!-- Navigation -->
+  
+
+  <main>
+    <!-- Top Metrics Overview -->
+    <div class="card full-width">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-eye"></i> REAL-TIME WEAVING DEFECT INSPECTION MONITOR</div>
+        <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+          BATCH: <strong id="h-batch" style="color: var(--accent);">B-2026-0001</strong> | ROLL POS: <strong id="h-pos">42.5 m</strong>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Loom Decision</span>
+          <span class="metric-value" id="m-decision" style="color: var(--green);">CONTINUE</span>
+          <span class="metric-sub">Automatic Decision Rule</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Primary Defect Class</span>
+          <span class="metric-value" id="m-class">—</span>
+          <span class="metric-sub">ResNet18 CNN Model</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Detection Confidence</span>
+          <span class="metric-value" id="m-conf">—</span>
+          <span class="metric-sub">Model Confidence Score</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Defect Density (per 10m)</span>
+          <span class="metric-value" id="m-density">0</span>
+          <span class="metric-sub">Limit: >3 Rejects Roll</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Left Column: Upload & Live Viewport -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-camera"></i> FABRIC IMAGE INSPECTOR</div>
+      </div>
+
+      <div class="image-viewport" id="viewport">
+        <span style="color: var(--text-muted); font-size: 0.85rem;" id="viewport-placeholder">Upload or select a fabric sample frame</span>
+        <img id="preview-img" style="display: none;" alt="Fabric Inspection Frame">
+      </div>
+
+      <form id="inspect-form" style="margin-top: 1.2rem;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Batch Identifier</label>
+            <input type="text" id="f-batch-id" value="B-2026-0001" required>
+          </div>
+          <div class="form-group">
+            <label>Roll Position (meters)</label>
+            <input type="number" step="0.1" id="f-roll-pos" value="42.5">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Upload Fabric Frame Image</label>
+          <input type="file" id="f-file" accept="image/*" required>
+        </div>
+
+        <button type="submit" class="btn-primary"><i class="fa-solid fa-microscope"></i> RUN RESNET18 DEFECT INSPECTION</button>
+      </form>
+    </div>
+
+    <!-- Right Column: Model Analysis & Bounding Box Details -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="fa-solid fa-chart-line"></i> AGENT 02 INSPECTION REPORT</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px dashed var(--border);">
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">INSPECTION RESULT:</span>
+          <span id="rep-badge" class="badge badge-green">AWAITING INSPECTION</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px dashed var(--border);">
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">CLASSIFIED CATEGORY:</span>
+          <strong id="rep-cat" style="color: var(--accent);">—</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px dashed var(--border);">
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">CNN MODEL CONFIDENCE:</span>
+          <strong id="rep-conf">—</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px dashed var(--border);">
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">AUTOMATED LOOM ACTION:</span>
+          <strong id="rep-action" style="color: var(--green);">CONTINUE WEAVING</strong>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <label>Detected Bounding Boxes & Coordinates</label>
+        <div id="bbox-container" style="margin-top: 8px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); font-style: italic;">
+          No defect bounding boxes flagged. Fabric is clean.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:8002/agents/defect';
+
+    // Preview uploaded image
+    document.getElementById('f-file').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          document.getElementById('preview-img').src = event.target.result;
+          document.getElementById('preview-img').style.display = 'block';
+          document.getElementById('viewport-placeholder').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('inspect-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const batchId = document.getElementById('f-batch-id').value;
+      const rollPos = document.getElementById('f-roll-pos').value;
+      const fileInput = document.getElementById('f-file');
+
+      if (!fileInput.files[0]) {
+        alert('Please select an image file to inspect.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('batch_id', batchId);
+      formData.append('roll_position_m', rollPos);
+      formData.append('file', fileInput.files[0]);
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> INSPECTING...';
+
+      try {
+        const res = await fetch(`${API_BASE}/inspect`, {
+          method: 'POST',
+          body: formData
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || res.statusText);
+        }
+        const data = await res.json();
+        renderInspection(data);
+      } catch (err) {
+        alert('Inspection failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    });
+
+    function renderInspection(data) {
+      document.getElementById('h-batch').innerText = data.batch_id;
+      document.getElementById('h-pos').innerText = `${data.roll_position_m} m`;
+
+      document.getElementById('m-decision').innerText = data.decision.toUpperCase();
+      document.getElementById('m-decision').style.color = data.decision === 'continue' ? 'var(--green)' : 'var(--red)';
+
+      document.getElementById('m-class').innerText = data.primary_defect.toUpperCase();
+      document.getElementById('m-conf').innerText = `${(data.confidence * 100).toFixed(1)}%`;
+      document.getElementById('m-density').innerText = data.defect_density_per_10m;
+
+      // Report Card
+      const badge = document.getElementById('rep-badge');
+      if (data.decision === 'continue') {
+        badge.innerText = `PASS — ${data.primary_defect.toUpperCase()}`;
+        badge.className = 'badge badge-green';
+      } else if (data.decision === 'flag') {
+        badge.innerText = `FLAGGED — ${data.primary_defect.toUpperCase()}`;
+        badge.className = 'badge badge-yellow';
+      } else {
+        badge.innerText = `REJECT ROLL — ${data.primary_defect.toUpperCase()}`;
+        badge.className = 'badge badge-red';
+      }
+
+      document.getElementById('rep-cat').innerText = data.primary_defect;
+      document.getElementById('rep-conf').innerText = `${(data.confidence * 100).toFixed(1)}%`;
+      document.getElementById('rep-action').innerText = data.decision.toUpperCase();
+      document.getElementById('rep-action').style.color = data.decision === 'continue' ? 'var(--green)' : 'var(--red)';
+
+      const bboxBox = document.getElementById('bbox-container');
+      if (data.defects && data.defects.length > 0) {
+        bboxBox.innerHTML = '';
+        data.defects.forEach(d => {
+          const div = document.createElement('div');
+          div.style.background = 'var(--surface2)';
+          div.style.padding = '8px';
+          div.style.borderRadius = '4px';
+          div.style.border = '1px solid var(--red)';
+          div.style.color = 'var(--red)';
+          div.innerText = `⚠️ Defect Type: ${d.type.toUpperCase()} | Bounding Box [x1, y1, x2, y2]: [${d.bbox.join(', ')}] | Confidence: ${(d.confidence * 100).toFixed(1)}%`;
+          bboxBox.appendChild(div);
+        });
+      } else {
+        bboxBox.innerHTML = '<div style="color: var(--text-muted); font-style: italic;">No defect bounding boxes flagged. Fabric is clean.</div>';
+      }
+    }
+  </script>
+
+  <!-- Iframe view compatibility script -->
+  <script>
+    if (window.self !== window.top) {
+      const navEl = document.querySelector('nav');
+      if (navEl) {
+        navEl.style.display = 'none';
+      }
+      document.body.style.paddingTop = '0px';
+    }
+  </script>
+
+
+  <!-- ChartJS Color Correction Script -->
+  <script>
+    if (window.Chart) {
+      Chart.defaults.color = '#475569';
+      Chart.defaults.borderColor = 'rgba(15, 23, 42, 0.08)';
+    }
+  </script>
+
+</body>
+</html>
